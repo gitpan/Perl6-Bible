@@ -1,8 +1,6 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
+use Perl6::Bible;
 
-my $document = shift(@ARGV) || '';
-$document = $document
-? "Perl6::Bible::" . uc($document)
-: "Perl6::Bible";
-
-system "perldoc $document";
+Perl6::Bible->new->process(@ARGV);

@@ -2,16 +2,34 @@ NAME
     Perl6::Bible - The Gospel according to Cabal
 
 SYNOPSIS
-        > p6bible s29
+        > p6bible s05
 
 DESCRIPTION
-    This distribution contains all the latest Perl6 documentation and a
-    utility called "p6bible" for viewing them.
+    This Perl module distribution contains all the latest Perl 6
+    documentation and a utility called "p6bible" for viewing it.
 
-AUTHOR
+CONTENTS
+      A01       S01  The Ugly, the Bad, and the Good
+      A02  E02  S02  Bits and Pieces
+      A03  E03  S03  Operators
+      A04  E04  S04  Syntax
+      A05  E05  S05  Pattern Matching
+      A06  E06  S06  Subroutines
+           E07       Formats
+                S09  Data Structures
+                S10  Packages
+                S11  Modules
+                S12  Objects
+                S13  Overloading
+                S29  Functions
+
+SCRIBE
     Brian Ingerson <ingy@cpan.org>
 
 COPYRIGHT
+    This Copyright applies only to the "Perl6::Bible" Perl software
+    distribution, not the documents bundled within.
+
     Copyright (c) 2005. Brian Ingerson. All rights reserved.
 
     This program is free software; you can redistribute it and/or modify it
