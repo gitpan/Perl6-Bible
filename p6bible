@@ -1,0 +1,8 @@
+#!/usr/bin/perl
+
+my $document = shift(@ARGV) || '';
+$document = $document
+? "Perl6::Bible::" . uc($document)
+: "Perl6::Bible";
+
+system "perldoc $document";
