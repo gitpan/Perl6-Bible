@@ -1,7 +1,7 @@
 package Perl6::Bible;
 use Spiffy -Base;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 sub process {
     my ($args, @values) = $self->get_opts(@_);
@@ -72,12 +72,11 @@ _
 
 sub version {
     print <<_;
-This is the Perl 6 Canon as of April 2nd, 2005 AD
+This is the Perl 6 Canon as of April 3rd, 2005 AD
 (bundled in Perl6-Bible-$VERSION)
 _
 }
 
-use Spiffy -XXX;
 sub contents {
     my $module = __PACKAGE__;
     $module =~ s/::/\//g;
@@ -89,7 +88,8 @@ sub contents {
     close MOD;
     $text =~ s/^.*=head1 CONTENTS(.*?)=head1.*$/$1/s
       or die "Can't find contents\n";
-    $text =~ s/^\s*?\n//mg;
+    $text =~ s/\A\s*\n//;
+    $text =~ s/\s*\z/\n/;
     print $text;
 }
 
@@ -108,7 +108,48 @@ Perl6::Bible - The Gospel according to Cabal
 This Perl module distribution contains all the latest Perl 6
 documentation and a utility called C<p6bible> for viewing it.
 
+=head2 Apocalypses
+
+The document codes C<A01 - A33> refer to the Perl 6 Apocalypses.
+
+Larry Wall started the Apocalypse series as a systematic way of
+answering the RFCs (Request For Comments) that started the design
+process for Perl 6.  Each Apocalypse corresponds to a chapter in the
+book _Programming Perl_, 3rd edition, and addresses the features
+relating to that chapter in the book that are likely to change.
+
+Larry addresses each relevant RFC, and gives reasons why he accepted
+or rejected various pieces of it.  But each Apocalypse also goes
+beyond a simple "yes" and "no" response to attack the roots of the
+problems identified in the RFCs.
+
+=head2 Exegeses
+
+The document codes C<E01 - E33> refer to the Perl 6 Exegeses.
+
+Damian Conway's Exegeses are extensions of each Apocalypse.  Each
+Exegesis is built around a practical code example that applies and
+explains the new ideas.
+
+=head2 Synopses
+
+The document codes C<S01 - S33> refer to the Perl 6 Synopses.
+
+The Synopsis documents are to be taken as the formal specification for
+Perl 6 implementations, while still being reference documentation for
+Perl 6, like _Programming Perl_ is for Perl 5.
+
+Note that while these documents are considered "formal specifications",
+they are still being subjected to the rigours of cross-examination
+through implementation.
+
+In other words, they may change slightly or radically. But the
+expectation is that they are "very close" to the final shape of Perl 6.
+
 =head1 CONTENTS
+
+This is the list of documents that are currently available; a number in
+the column indicates the document is currently available.
 
   A01       S01  The Ugly, the Bad, and the Good
   A02  E02  S02  Bits and Pieces
@@ -117,23 +158,48 @@ documentation and a utility called C<p6bible> for viewing it.
   A05  E05  S05  Pattern Matching
   A06  E06  S06  Subroutines
        E07       Formats
+                 References
             S09  Data Structures
             S10  Packages
             S11  Modules
             S12  Objects
             S13  Overloading
+                 Tied Variables
+                 Unicode
+                 Interprocess Communication
+                 Threads
+                 Compiling
+                 The Command-Line Interface
+                 The Perl Debugger
+                 Internals and Externals
+                 CPAN
+                 Security
+                 Common Practices
+                 Portable Perl
+                 Plain Old Documentation
+                 Special Names
             S29  Functions
+                 The Standard Perl Library
+                 Pragmatic Modules
+                 Standard Modules
+                 Diagnostic Modules
 
-=head1 SCRIBE
 
-Brian Ingerson <ingy@cpan.org>
+=head1 SCRIBES
+
+* Brian Ingerson <ingy@cpan.org>
+
+* Sam Vilain <samv@cpan.org>
 
 =head1 COPYRIGHT
 
 This Copyright applies only to the C<Perl6::Bible> Perl software
 distribution, not the documents bundled within.
 
-Copyright (c) 2005. Brian Ingerson. All rights reserved.
+A couple of paragraphs from _Perl 6 Essentials_ were used for the
+overview.
+
+Copyright (c) 2005. Brian Ingerson, Sam Vilain. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
