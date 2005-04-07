@@ -1,7 +1,8 @@
 package Perl6::Bible;
 use Spiffy -Base;
+use File::Spec;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 sub process {
     my ($args, @values) = $self->get_opts(@_);
@@ -34,6 +35,27 @@ sub validate_args {
         return unless /^(-h|--help|-v|--version|-c|--contents)$/;
     }
     return 1;
+}
+
+sub get_raw {
+    my $id = shift
+      or die "Missing argument for get_raw";
+    my $document = uc($id);
+    $document .= '.pod';
+    $document = File::Spec->catfile("Perl6", "Bible", $document);
+    my $document_path = '';
+    for my $path (@INC) {
+        my $file_path = File::Spec->catfile($path, $document);
+        next unless -e $file_path;
+        $document_path = $file_path;
+        last;
+    }
+    die "No documentation for $id"
+      unless $document_path;
+    open DOC, $document_path;
+    my $text = do {local $/, <DOC>};
+    close DOC;
+    return $text;
 }
 
 sub perldoc {
@@ -184,6 +206,11 @@ the column indicates the document is currently available.
                  Standard Modules
                  Diagnostic Modules
 
+=head1 METHODS
+
+Perl6::Bible provides a class method to get the raw text of a document:
+
+    my $text = Perl6::Bible->get_raw('s01');
 
 =head1 SCRIBES
 

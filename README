@@ -80,6 +80,11 @@ CONTENTS
                      Standard Modules
                      Diagnostic Modules
 
+METHODS
+    Perl6::Bible provides a class method to get the raw text of a document:
+
+        my $text = Perl6::Bible->get_raw('s01');
+
 SCRIBES
     * Brian Ingerson <ingy@cpan.org>
 
