@@ -2,7 +2,9 @@ NAME
     Perl6::Bible - The Gospel according to Cabal
 
 SYNOPSIS
-        > p6bible s05
+        > p6bible -h     # Show p6bible help
+        > p6bible -c     # Show Table of Contents
+        > p6bible s05    # Browse Synopsis 05
 
 DESCRIPTION
     This Perl module distribution contains all the latest Perl 6
@@ -45,7 +47,10 @@ DESCRIPTION
 
 CONTENTS
     This is the list of documents that are currently available; a number in
-    the column indicates the document is currently available.
+    the column indicates the document is currently available. An asterisk
+    next to a number means that the document is an unofficial draft written
+    by a member of the Perl community but not approved by the Perl 6 Design
+    Team.
 
       A01       S01  The Ugly, the Bad, and the Good
       A02  E02  S02  Bits and Pieces
@@ -72,9 +77,10 @@ CONTENTS
                      Security
                      Common Practices
                      Portable Perl
-                     Plain Old Documentation
-                     Special Names
-                S29  Functions
+                S26* Perl Documentation
+                S27* Perl Culture
+                S28* Special Names
+                S29* Functions
                      The Standard Perl Library
                      Pragmatic Modules
                      Standard Modules
@@ -97,7 +103,7 @@ COPYRIGHT
     A couple of paragraphs from _Perl 6 Essentials_ were used for the
     overview.
 
-    Copyright (c) 2005. Brian Ingerson, Sam Vilain. All rights reserved.
+    Copyright (c) 2005. Brian Ingerson. All rights reserved.
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.

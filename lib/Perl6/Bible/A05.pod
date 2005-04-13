@@ -2179,7 +2179,7 @@ the parser's job to transform the linear stream of objects into a parse
 tree of objects.
 
 Matching against such boundaries or metadata would not be possible
-unless ether the regex engine is aware that it is matching against an
+unless either the regex engine is aware that it is matching against an
 array, or the string emulation provides visibility through the abstract
 string into the underlying array. The latter may be preferable, since
 (by the rules of the C<=~> matrix discussed in Apocalypse 4) C<@array

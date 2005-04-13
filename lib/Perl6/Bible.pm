@@ -2,7 +2,7 @@ package Perl6::Bible;
 use Spiffy -Base;
 use File::Spec;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 sub process {
     my ($args, @values) = $self->get_opts(@_);
@@ -112,6 +112,7 @@ sub contents {
       or die "Can't find contents\n";
     $text =~ s/\A\s*\n//;
     $text =~ s/\s*\z/\n/;
+    $text =~ s/^ {17}.*\n//mg;
     print $text;
 }
 
@@ -123,7 +124,9 @@ Perl6::Bible - The Gospel according to Cabal
 
 =head1 SYNOPSIS
 
-    > p6bible s05
+    > p6bible -h     # Show p6bible help
+    > p6bible -c     # Show Table of Contents
+    > p6bible s05    # Browse Synopsis 05
 
 =head1 DESCRIPTION
 
@@ -170,8 +173,11 @@ expectation is that they are "very close" to the final shape of Perl 6.
 
 =head1 CONTENTS
 
-This is the list of documents that are currently available; a number in
-the column indicates the document is currently available.
+This is the list of documents that are currently available; a number
+in the column indicates the document is currently available. An
+asterisk next to a number means that the document is an unofficial
+draft written by a member of the Perl community but not approved by
+the Perl 6 Design Team.
 
   A01       S01  The Ugly, the Bad, and the Good
   A02  E02  S02  Bits and Pieces
@@ -198,9 +204,10 @@ the column indicates the document is currently available.
                  Security
                  Common Practices
                  Portable Perl
-                 Plain Old Documentation
-                 Special Names
-            S29  Functions
+            S26* Perl Documentation
+            S27* Perl Culture
+            S28* Special Names
+            S29* Functions
                  The Standard Perl Library
                  Pragmatic Modules
                  Standard Modules
@@ -226,7 +233,7 @@ distribution, not the documents bundled within.
 A couple of paragraphs from _Perl 6 Essentials_ were used for the
 overview.
 
-Copyright (c) 2005. Brian Ingerson, Sam Vilain. All rights reserved.
+Copyright (c) 2005. Brian Ingerson. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
