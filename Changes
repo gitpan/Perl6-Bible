@@ -1,4 +1,9 @@
 ---
+version: 0.15
+date:    Thu Apr 21 13:17:22 PDT 2005
+changes:
+- S03 S06 and A06 changed
+---
 version: 0.14
 date:    Sun Apr 10 03:22:35 PDT 2005
 changes:

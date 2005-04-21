@@ -1237,7 +1237,7 @@ automatically mean to make a call to the subroutine.  (This Apocalypse
 contradicts earlier Apocalypses.  Guess which one is right...)
 
 [Update: Er, actually, the earlier Apocalypse is right.  We now write
-those references above as C<< &factorial<complex> >> and such.]
+those references above as C<< &factorial:(complex) >> and such.]
 
     $val = &factorial($x);	# illegal, must use either
     $val = factorial($x);	#   this or
@@ -2021,7 +2021,7 @@ Damian's Perl 6 talks...
 
 All blocks are considered closures in Perl 6, even the blocks
 that declare modules or classes (presuming you use the block form).
-A closure is just an anonymous subroutine that has access its lexical
+A closure is just an anonymous subroutine that has access to its lexical
 context.  The fact that some closures are immediately associated
 with names or have other kinds of parameter declarations does not
 change the fact that an anonymous bare block without parameters is
@@ -2993,10 +2993,8 @@ executed at compile time, and returns a string, a parse tree, or a
 closure just as a macro would:
 
     # define Pascal comments:
-    macro circumfix:(**) () is parsed(/.*?/ { "" }
+    macro circumfix:<(* *)> () is parsed(/.*?/) { "" }
 				# "Comment? What comment?"
-
-[Update: That'd be C<< circumfix:<(* *)> >> nowadays.]
 
 A circumfix operator is assumed to be split symmetrically between
 prefix and postfix.  In this case the circumfix of four characters
@@ -3006,12 +3004,12 @@ of characters) you may specify exactly where the parse rule is
 interpolated with a special C< ... > marker, which is considered part
 of the name:
 
-    macro circumfix:(*...*) () is parsed(/.*?/ { "" }
+    macro circumfix:(*...*) () is parsed(/.*?/) { "" }
 
 [Update: That's now solved by use of existing slice syntax:
 
-    macro circumfix:<(* *)> () is parsed(/.*?/ { "" }
-    macro circumfix:{'(*', '*)'} () is parsed(/.*?/ { "" }
+    macro circumfix:<(* *)> () is parsed(/.*?/) { "" }
+    macro circumfix:{'(*', '*)'} () is parsed(/.*?/) { "" }
 
 That's so convenient that we'll discard the special rule about
 splitting symmetrically in favor of requiring a two element slice.]
@@ -3509,7 +3507,7 @@ called using parens, even though we could theoretically relax it.
 
 On the other hand, this means that any unrecognized word followed by
 a list may unambiguously be taken to be a multimethod being called
-as a list operaotr.  After all, we don't know when someone will be
+as a list operator.  After all, we don't know when someone will be
 adding more multimethods.  I currently think this is a feature, but
 I could be sadly mistaken.  It has happened once or twice in the past.
 
