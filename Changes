@@ -1,4 +1,10 @@
 ---
+version: 0.16
+date:    Sat Apr 30 13:26:55 PDT 2005
+changes:
+- S06 Changed
+- Applied modified patch from Joshua Gatcomb to use some `perldoc` args
+---
 version: 0.15
 date:    Thu Apr 21 13:17:22 PDT 2005
 changes:

@@ -2598,7 +2598,7 @@ which lets you say things like:
     leave Block;
     leave &_ <== 1,2,3;	# same as "return 1,2,3"
     leave where => Parametric, value => (1,2,3);
-    leave Loop, label => 'LINE', $retval
+    leave Loop, label => 'LINE', $retval;
     leave { $_ ~~ Block and $_ !~ Sub } 1,2,3;
     leave () <== 1,2,3;
 

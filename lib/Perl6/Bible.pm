@@ -2,7 +2,7 @@ package Perl6::Bible;
 use Spiffy -Base;
 use File::Spec;
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 sub process {
     my ($args, @values) = $self->get_opts(@_);
@@ -17,7 +17,7 @@ sub process {
     $self->contents, return 
       if $args->{-c} || 
          $args->{'--contents'};
-    $self->perldoc(@values);
+    $self->perldoc($args, @values);
 }
 
 sub get_opts {
@@ -32,7 +32,12 @@ sub get_opts {
 sub validate_args {
     my $args = shift;
     for (keys %$args) {
-        return unless /^(-h|--help|-v|--version|-c|--contents)$/;
+        return unless /^(
+            -h | --help | 
+            -v | --version |
+            -c | --contents |
+            -t | -u | -m | -T
+        )$/x;
     }
     return 1;
 }
@@ -59,10 +64,13 @@ sub get_raw {
 }
 
 sub perldoc {
+    my $args = shift;
     my $document = "Perl6::Bible";
     $document .= '::' . uc(shift)
       if @_;
-    my $command = "perldoc $document";
+    my $options = join ' ', grep { defined $args->{$_} } qw(-t -u -m -T);
+    $options ||= '';
+    my $command = "perldoc $options $document";
     $command .= " 2> /dev/null"
       unless $^O eq 'MSWin32';
     system $command;
@@ -89,6 +97,8 @@ Valid options:
   -h,  --help       Print this help screen
   -v,  --version    Print the publish date of this Perl6::Bible version
   -c,  --contents   Show the current table of contents
+
+Additionally, the perldoc -t, -u, -m, or -T can be used to format the output.
 _
 }
 
