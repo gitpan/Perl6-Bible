@@ -2,7 +2,7 @@ package Perl6::Bible;
 use Spiffy -Base;
 use File::Spec;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 sub process {
     my ($args, @values) = $self->get_opts(@_);

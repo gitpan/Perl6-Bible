@@ -3,7 +3,7 @@
 find design -type f | grep -v '\.svn' | xargs -J xxx cp xxx lib/Perl6/Bible/
 find lib -type f| grep -v '\.svn' | xargs perl -pi -e 's/^=encoding.*//'
 
-cp -f ../../pugs/docs/S26draft.pod lib/Perl6/Bible/S26.pod
-cp -f ../../pugs/docs/S27draft.pod lib/Perl6/Bible/S27.pod
-cp -f ../../pugs/docs/S28draft.pod lib/Perl6/Bible/S28.pod
-cp -f ../../pugs/docs/S29draft.pod lib/Perl6/Bible/S29.pod
+cp -f ../../pugs/docs/AES/S26draft.pod lib/Perl6/Bible/S26.pod
+cp -f ../../pugs/docs/AES/S27draft.pod lib/Perl6/Bible/S27.pod
+cp -f ../../pugs/docs/AES/S28draft.pod lib/Perl6/Bible/S28.pod
+cp -f ../../pugs/docs/AES/S29draft.pod lib/Perl6/Bible/S29.pod
