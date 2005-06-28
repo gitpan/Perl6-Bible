@@ -68,7 +68,7 @@ CONTENTS
                      Tied Variables
                      Unicode
                      Interprocess Communication
-                     Threads
+                S17  Threads
                      Compiling
                      The Command-Line Interface
                      The Perl Debugger

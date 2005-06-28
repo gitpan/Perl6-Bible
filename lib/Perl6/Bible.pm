@@ -2,7 +2,7 @@ package Perl6::Bible;
 use Spiffy -Base;
 use File::Spec;
 
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 sub process {
     my ($args, @values) = $self->get_opts(@_);
@@ -205,7 +205,7 @@ the Perl 6 Design Team.
                  Tied Variables
                  Unicode
                  Interprocess Communication
-                 Threads
+            S17  Threads
                  Compiling
                  The Command-Line Interface
                  The Perl Debugger

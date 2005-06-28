@@ -1,4 +1,10 @@
 ---
+version: 0.19
+date:    Tue Jun 28 08:29:57 PDT 2005
+changes:
+- S17 added
+- S04 S29 updated
+---
 version: 0.18
 date:    Sun Jun 12 16:03:02 PDT 2005
 changes:
