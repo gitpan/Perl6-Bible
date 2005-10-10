@@ -16,6 +16,7 @@ lib/Perl6/Bible/A04.pod
 lib/Perl6/Bible/A05.pod
 lib/Perl6/Bible/A06.pod
 lib/Perl6/Bible/A12.pod
+lib/Perl6/Bible/A20.pod
 lib/Perl6/Bible/E02.pod
 lib/Perl6/Bible/E03.pod
 lib/Perl6/Bible/E04.pod
@@ -45,4 +46,3 @@ p6bible
 README
 t/compile.t
 t/getraw.t
-updater

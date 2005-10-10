@@ -1,4 +1,9 @@
 ---
+version: 0.20
+date:    Mon Oct 10 16:00:34 PDT 2005
+changes:
+- A20 added
+---
 version: 0.19
 date:    Tue Jun 28 08:29:57 PDT 2005
 changes:

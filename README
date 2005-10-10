@@ -71,7 +71,7 @@ CONTENTS
                 S17  Threads
                      Compiling
                      The Command-Line Interface
-                     The Perl Debugger
+      A20*           The Perl Debugger
                      Internals and Externals
                      CPAN
                      Security
