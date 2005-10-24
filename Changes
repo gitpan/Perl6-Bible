@@ -1,4 +1,9 @@
 ---
+version: 0.21
+date:    Sun Oct 23 20:23:38 PDT 2005
+changes:
+- S06 tweaked
+---
 version: 0.20
 date:    Mon Oct 10 16:00:34 PDT 2005
 changes:

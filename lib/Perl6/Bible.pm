@@ -2,7 +2,7 @@ package Perl6::Bible;
 use Spiffy -Base;
 use File::Spec;
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 sub process {
     my ($args, @values) = $self->get_opts(@_);
@@ -104,7 +104,7 @@ _
 
 sub version {
     print <<_;
-This is the Perl 6 Canon as of October 10th, 2005 AD
+This is the Perl 6 Canon as of October 23rd, 2005 AD
 (bundled in Perl6-Bible-$VERSION)
 _
 }
