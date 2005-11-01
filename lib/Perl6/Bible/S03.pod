@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 26 Aug 2005
+  Last Modified: 27 Oct 2005
   Number: 3
-  Version: 6
+  Version: 7
 
 =head1 Operator renaming
 
@@ -48,7 +48,7 @@ true.
 of a string to produce a single string), and C<xx> (which creates a list of 
 repetitions of a list or scalar).
 
-=item * Trinary C<? :> becomes C<?? ::>.
+=item * Trinary C<? :> becomes C<?? !!>.
 
 =item * C<qw{ ... }> gets a synonym: C< < ... > >, and an interpolating
 variant, C<«...»>.
@@ -57,6 +57,10 @@ written: C<<< << ... >> >>>.
 
 =item * The scalar comma C<,> now constructs a list reference of its
 operands.  You have to use a C<[-1]> subscript to get the last one.
+
+=item * The backslash operator still produces a reference, but when
+applied to a parenthesized list, produces an Arglist object instead
+of a list of refs.
 
 =back
 
@@ -245,12 +249,13 @@ true in the above example.
 
 =head1 List flattening
 
-Since typeglobs are being removed, unary C<*> may now serve as a lazy list
-flattening operator.  It is used to "flatten" an array into a list,
-usually to allow the array's contents to be used as the arguments of a
-subroutine call.  Note that those arguments still must comply with the
-subroutine's signature, but the presence of C<*> defers that test until
-run time for that argument (and for any subsequent arguments):
+Since typeglobs are being removed, unary C<*> may now serve as a
+lazy list flattening operator.  It is used to "flatten" an Array
+(or Arglist) into the Arglist being constructed for the current call,
+usually to allow the array's contents to be used as the arguments of
+a subroutine call.  Note that those arguments still must comply with
+the subroutine's signature, but the presence of C<*> defers that test
+until run time for that argument (and for any subsequent arguments):
 
     my @args = (\@foo, @bar);
     push *@args;
@@ -258,6 +263,11 @@ run time for that argument (and for any subsequent arguments):
 is equivalent to:
 
     push @foo, @bar;
+
+as is this:
+
+    my $args = \(@foo, @bar);	 # construct Arglist object
+    push *$args;
 
 In list context, a scalar reference to an array does not flatten.  Hence
 
@@ -367,7 +377,7 @@ operator:
 Perl 6 has 22 precedence levels (fewer than Perl 5):
 
     terms		42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
-    method postfix	. .+ .? .* .+ .() .[] .{} .«» .=
+    method postfix	. .+ .? .* .() .[] .{} .«» .=
     autoincrement	++ --
     exponentiation	**
     symbolic unary	! + - ~ ? * ** +^ ~^ ?^ \
@@ -380,7 +390,7 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:=
     tight and		&&
     tight or		|| ^^ //
-    ternary		?? ::
+    ternary		?? !!
     assignment		= := ::= += -= **= xx= etc.
     list item separator	, ¥
     list op (rightward)	<== print push any all true not etc.
