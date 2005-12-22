@@ -1,6 +1,6 @@
 =head1 NAME
 
-Exegesis 3 - Operators
+Exegesis_3 - Operators
 
 =head1 AUTHOR
 

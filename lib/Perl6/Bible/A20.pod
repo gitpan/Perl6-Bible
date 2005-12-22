@@ -1,6 +1,6 @@
 =head1 NAME
 
-Apocalypse 20 - Debugging [DRAFT]
+Apocalypse_20 - Debugging [DRAFT]
 
 =head1 VERSION
 

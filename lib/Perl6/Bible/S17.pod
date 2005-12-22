@@ -2,7 +2,7 @@
 
 =head1 TITLE
 
-Synopsis 17 - Concurrency [DRAFT]
+Synopsis_17 - Concurrency [DRAFT]
 
 =head1 AUTHOR
 

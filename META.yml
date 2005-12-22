@@ -1,5 +1,5 @@
 name: Perl6-Bible
-version: 0.24
+version: 0.25
 abstract: Perl 6 Design Documentations
 author: Brian Ingerson. All rights reserved.
 license: perl
@@ -9,4 +9,4 @@ requires:
 no_index:
   directory:
     - inc
-generated_by: Module::Install version 0.44
+generated_by: Module::Install version 0.45

@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Synopsis 5 - Rules
+Synopsis_5 - Rules
 
 =head1 AUTHORS
 
