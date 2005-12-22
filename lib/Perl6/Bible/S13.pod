@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Synopsis 13: Overloading
+Synopsis 13 - Overloading
 
 =head1 AUTHOR
 

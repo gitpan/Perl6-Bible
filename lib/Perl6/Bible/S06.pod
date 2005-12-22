@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Synopsis 6: Subroutines
+Synopsis 6 - Subroutines
 
 =head1 AUTHOR
 

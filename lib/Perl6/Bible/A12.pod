@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Apocalypse 12: Objects
+Apocalypse 12 - Objects
 
 =head1 AUTHOR
 

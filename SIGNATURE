@@ -14,9 +14,9 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 b710cfa6242db61f412bb12db8d6ae1a1885b2a3 Changes
-SHA1 e99f66ee58388fd1b2a021888ad1738c69d653b0 MANIFEST
-SHA1 502a3af132c0aae1bf2691ca9428dc46db0f4efe META.yml
+SHA1 669e0d955d914d7a02db924168387bb2999e3026 Changes
+SHA1 34c3adda9fedd5638ee78afb96434a8265395bb3 MANIFEST
+SHA1 104cfd5c61ae791c9f0762b46dc545e5c60c7f7e META.yml
 SHA1 15cf85cafd143a3fd65bd18c740417deee81c43f Makefile.PL
 SHA1 c0338ecd0e58e7735ce69e26c2362027707d7cfe README
 SHA1 f08ee01822482ff8efbfe223f1e566417d4e0aa4 inc/Module/Install.pm
@@ -28,44 +28,45 @@ SHA1 942fde153df92dd73759011960034d441fdd983d inc/Module/Install/Metadata.pm
 SHA1 8c7eb61d081ec7783836d72ad81c0536df65dec0 inc/Module/Install/Scripts.pm
 SHA1 8ee248d67d4c61a4f01e6a96c41afbd93be4c9ef inc/Module/Install/Win32.pm
 SHA1 3c099dd7fb73a49bcc489b152c3ca3c7a1b36427 inc/Module/Install/WriteAll.pm
-SHA1 5d4ac0e3b02fe750adfc6ca28c3e0bd37962d2d8 lib/Perl6/Bible.pm
-SHA1 7a2110c170839095db8acabf48f33c3eeb3b2a4d lib/Perl6/Bible/A01.pod
-SHA1 14319ee3e7b9618f81c294ecfd6880486b428026 lib/Perl6/Bible/A02.pod
-SHA1 c7f3d91faef4a69f6ef973e4219ab266b521a26a lib/Perl6/Bible/A03.pod
-SHA1 1f453b5a43820ef51be3cd1f193fc28ae542c58d lib/Perl6/Bible/A04.pod
-SHA1 69c1135b7a6177bf4983619c52cca76c54230184 lib/Perl6/Bible/A05.pod
-SHA1 82bac283e380e76bf9840d06bc03ef9ae3f1959f lib/Perl6/Bible/A06.pod
-SHA1 782d9a11d165ee02e5ce1572a576edf9785daaa7 lib/Perl6/Bible/A12.pod
+SHA1 dd559ef64007ca8ae29ea51537456a0049992a97 lib/Perl6/Bible.pm
+SHA1 cab5e7922e22265febab6847ecae7e3671ce70b1 lib/Perl6/Bible/A01.pod
+SHA1 5165e9fd99d5abf3cae46d47769cbacc22e1528e lib/Perl6/Bible/A02.pod
+SHA1 02190a087b877152ecc57762a861b457549f8f38 lib/Perl6/Bible/A03.pod
+SHA1 ed843b99331c58edb1332e88d7df38fe68c5de64 lib/Perl6/Bible/A04.pod
+SHA1 9ad51e6f2cc8eb0934ade907dcf4596482433b3c lib/Perl6/Bible/A05.pod
+SHA1 0b1dfae47c158642e44d8206b5135e9d0fbd3cd0 lib/Perl6/Bible/A06.pod
+SHA1 7a1ef088d24b6f57c3feb43805045396d0d8f9f6 lib/Perl6/Bible/A12.pod
 SHA1 b6761e597c2ee714dd68af633ed5dbf6af949768 lib/Perl6/Bible/A20.pod
-SHA1 086704c07a42051c4e41c5d8fb3e72684350cfe0 lib/Perl6/Bible/E02.pod
-SHA1 2989f6b003daa56386a0de2b0b1c30292320652e lib/Perl6/Bible/E03.pod
-SHA1 03060773a6db2dd43fffe00001a6cdf9ccfdde45 lib/Perl6/Bible/E04.pod
-SHA1 68aeab3313d12398475c7810594f01e875f374f0 lib/Perl6/Bible/E05.pod
-SHA1 68c62e21371aca56016f01a6dc82a43ef0b2bb7f lib/Perl6/Bible/E06.pod
-SHA1 d6274941e7cfa63e9ba0dedf8d696611a5addb6d lib/Perl6/Bible/E07.pod
-SHA1 9b383c693ffa644cf22180da3d11f27f6fc9cd0d lib/Perl6/Bible/S01.pod
-SHA1 0d83948db92193b49cf1088fab41fe41c701a7f3 lib/Perl6/Bible/S02.pod
-SHA1 1bc5d47906420e4af05548dca349aa6acd1e9f52 lib/Perl6/Bible/S03.pod
-SHA1 5136654f4c982bf61e4b6c70a05745cf20cefd82 lib/Perl6/Bible/S04.pod
-SHA1 7ba587350608284b5a538c30f14f61626705a881 lib/Perl6/Bible/S05.pod
-SHA1 88ae341375a20aa6afbd445b996a02f9f1cae455 lib/Perl6/Bible/S06.pod
-SHA1 05834c8d5d23421497edf8b746b4310fdb44b49c lib/Perl6/Bible/S09.pod
-SHA1 0db2c958bd395be889e88708d7e4cc06b73286bb lib/Perl6/Bible/S10.pod
-SHA1 274644d7041f7730feabbc6c98183a1b76ec89ed lib/Perl6/Bible/S11.pod
-SHA1 2acbb56da21192a715bd50f29e4319f0691546eb lib/Perl6/Bible/S12.pod
-SHA1 8e82601ed5d39cdd6d62fdc132772d2aeb26778e lib/Perl6/Bible/S13.pod
-SHA1 b47486f760589a4392e2f3d04f967fdd1fecd5f8 lib/Perl6/Bible/S17.pod
+SHA1 cd61dcbc9ff63d0c8c995e760372fe25ad636407 lib/Perl6/Bible/E02.pod
+SHA1 d7e304a5dafdbe7bb90f6f10377ea6242b4d2e78 lib/Perl6/Bible/E03.pod
+SHA1 3d521b2f534fba2f765fedb32f3c5ec92b339a25 lib/Perl6/Bible/E04.pod
+SHA1 61c1b580326dbce8dda552bad3f2218eeffbde33 lib/Perl6/Bible/E05.pod
+SHA1 aac6b77d9c8d2ebfaa0a4c0934183fb815617ac9 lib/Perl6/Bible/E06.pod
+SHA1 65bc3faabcaed7ded1de7d7ea47aa63e5c2bdd6e lib/Perl6/Bible/E07.pod
+SHA1 c0d133e34dce66eb64816cb142210a8686154019 lib/Perl6/Bible/S01.pod
+SHA1 fb7b9b3e5ef823dc07a9400a6750bc1898c62fc2 lib/Perl6/Bible/S02.pod
+SHA1 d6b8e6bc88e0bbf44b22fa5a1d2b92449bc30ae3 lib/Perl6/Bible/S03.pod
+SHA1 52217d374af08a3142f29a8300a0f4a3827c492e lib/Perl6/Bible/S04.pod
+SHA1 03d7e85b3bcd9cb2adc4ac72858499260032bb5f lib/Perl6/Bible/S05.pod
+SHA1 46f73c322153842671009e1812db0c72665acaea lib/Perl6/Bible/S06.pod
+SHA1 d10d16687099a2a0f375a2382e35d3c12948dcc3 lib/Perl6/Bible/S09.pod
+SHA1 bea8d1445b543914fabc2e9f0ef0137bd6741996 lib/Perl6/Bible/S10.pod
+SHA1 15607215e6f080e88a46a9c35278374a3a4bd161 lib/Perl6/Bible/S11.pod
+SHA1 d49186cc593e892f13b6bdb0db0ea496779af232 lib/Perl6/Bible/S12.pod
+SHA1 2d482fe53305d6c6f02dca6a2cec03aea29eab43 lib/Perl6/Bible/S13.pod
+SHA1 3b365689d96a9b2961343384913bd887e1011ccf lib/Perl6/Bible/S17.pod
+SHA1 72e0cc885bb63cf5507eab1b32bc534765f168ed lib/Perl6/Bible/S22.pod
 SHA1 ba88fba2b740153faef80c09267d133c1bc8b9c6 lib/Perl6/Bible/S26.pod
 SHA1 f897bf55c0da33b8ddbe7a5649ce3f840d30068f lib/Perl6/Bible/S27.pod
 SHA1 cec5bc0b4c75b6f71c77b7109683cfe9a973a4cf lib/Perl6/Bible/S28.pod
-SHA1 bf7294213a5e8fdcbf61de5b2ac0e94f96751c26 lib/Perl6/Bible/S29.pod
+SHA1 020c8f668ba888f2b7249a634b2e904c58cedcfe lib/Perl6/Bible/S29.pod
 SHA1 a319140959d7e5b67f2142e9613be669a99d3a57 p6bible
 SHA1 ae4258a194c654063029b825dc7c28993ebbd87c t/compile.t
 SHA1 fc53163bdf4475b964b549814931149747d80531 t/getraw.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2 (FreeBSD)
 
-iD8DBQFDqgRDtLPdNzw1AaARAtpZAKCZb6nKs5aGGJGJp0TuYqSq4cYeywCfQKSM
-148fbKtedQ8hRKis1a5dNLs=
-=e03u
+iD8DBQFDqjOBtLPdNzw1AaARAkXfAKC5nDyMBXWRcSTpodcYaMoB4Z/BXQCfYDxP
+LhBYtH7fdnvo52DooLotOQ8=
+=bzow
 -----END PGP SIGNATURE-----

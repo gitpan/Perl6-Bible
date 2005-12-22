@@ -1,4 +1,10 @@
 ---
+version: 0.24
+date:   Wed Dec 22 13:01:25 CST 2005
+changes:
+- Re-integrated the unofficial S17 (Concurrency) draft.
+- Changed the =head1 NAME line for better search.cpan.org indexing.
+---
 version: 0.23
 date:   Wed Dec 22 09:41:50 CST 2005
 changes:
