@@ -2,7 +2,7 @@ package Perl6::Bible;
 use 5.000;
 use File::Spec;
 
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 sub new {
     my $class = shift;
@@ -151,7 +151,7 @@ Perl6::Bible - Perl 6 Design Documentations
 
 =head1 VERSION
 
-This document describes version 0.25 of Perl6::Biblr, released
+This document describes version 0.26 of Perl6::Bible, released
 December 22, 2005.
 
 =head1 SYNOPSIS

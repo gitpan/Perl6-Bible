@@ -1,4 +1,9 @@
 ---
+version: 0.26
+date:   Wed Dec 22 22:47:10 CST 2005
+changes:
+- Zero-pad the =head1 NAME line so it sorts at search.cpan.org correctly.
+---
 version: 0.25
 date:   Wed Dec 22 15:46:10 CST 2005
 changes:

@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-Apocalypse_6 - Subroutines
+Apocalypse_06 - Subroutines
 
 =head1 AUTHOR
 
