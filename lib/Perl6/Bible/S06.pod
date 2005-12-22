@@ -1,6 +1,6 @@
+=encoding utf8
 
-
-=head1 TITLE
+=head1 NAME
 
 Synopsis 6: Subroutines
 
@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 26 Oct 2005
+  Last Modified: 21 Nov 2005
   Number: 6
-  Version: 9
+  Version: 12
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -89,15 +89,20 @@ with the C<is rw> trait:
 Raw blocks are also executable code structures in Perl 6.
 
 Every block defines an object of type C<Code>, which may either be executed
-immediately or passed on as a C<Code> reference argument.
-
+immediately or passed on as a C<Code> reference argument.  A
+bare block where an operator is expected is bound to the current
+statement level control syntax.  A bare block where a term is expected
+merely produces a reference.  If the term bare block occurs in a list,
+it is considered the final element of that list unless followed immediately
+by a comma or comma surrogate.
 
 =head2 "Pointy subs"
 
-The arrow operator C<< -> >> is almost a synonym for the anonymous
-C<sub> keyword, except that the parameter list of a pointy sub does
-not require parentheses, it does not require a preceding comma when
-included in a list, and a pointy sub may not be given traits.
+Semantically the arrow operator C<< -> >> is almost a synonym for
+the anonymous C<sub> keyword, except that the parameter list of a
+pointy sub does not require parentheses, and a pointy sub may not be
+given traits.  Syntactically a pointy sub is parsed exactly like a
+bare block.
 
     $sq = -> $val { $val**2 };  # Same as: $sq = sub ($val) { $val**2 };
 
@@ -291,12 +296,17 @@ on their corresponding arguments, but unlike in Perl 5, this is decided
 lazily at parameter binding time.
 
 Arguments destined for required positional parameters must come before
-those bound to optional positional parameters. Arguments destined for named
-parameters may come before and/or after the positional parameters,
-but all positional parameters must be contiguous in the call syntax.
-Named arguments are recognized syntactically at the "comma" level.
-Pairs intended as positional arguments rather than named arguments
-must be isolated by extra parens:
+those bound to optional positional parameters. Arguments destined
+for named parameters may come before and/or after the positional
+parameters.  (To avoid confusion it is highly recommended that all
+positional parameters be kept contiguous in the call syntax, but
+this is not enforced, and custom arg list processors are certainly
+possible on those arguments that are bound to a final slurpy or
+arglist variable.)
+
+Named arguments are recognized syntactically at the
+"comma" level.  Pairs intended as positional arguments rather than
+named arguments must be isolated by extra parens:
 
     doit :when<now>,1,2,3;	# always a named arg
     doit (:when<now>),1,2,3;	# always a positional arg
@@ -325,44 +335,34 @@ can also say this:
     doit $when,1,2,3;	# always a positional arg of 'now'
     doit :$when,1,2,3;	# always a named arg of :when<now>
 
-In other words C<:$when> is shorthand for C<:when($when)>.
+In other words C<:$when> is shorthand for C<:when($when)>.  This works
+for any sigil:
 
-There is a corresponding shortcut for hash keys, but it replicates the
-key name rather than the hash.  So
+    :$what	:what($what)
+    :@what	:what(@what)
+    :%what	:what(%what)
+    :&what	:what(&what)
 
-    doit :%hash<a>,1,2,3;
+There is a corresponding shortcut for hash keys if you prefix the
+subscript instead of the sigil.  The C<:> is not functioning as an
+operator here, but as a modifier of the following token:
 
-is short for
 
-    doit :a{%hash<a>},1,2,3;
+    doit %hash:<a>,1,2,3;
+    doit %hash:{'b'},1,2,3;
 
-rather than
+are short for
 
-    doit :hash{%hash<a>},1,2,3;
+    doit :a(%hash<a>),1,2,3;
+    doit :b(%hash{'b'}),1,2,3;
 
-Of course, you could always say
+To pass pairs out of hash without their being interpreted as named
+parameters, use
 
-    doit *%hash.pairs('a'),1,2,3;
+    doit %hash<a>:p,1,2,3;
+    doit %hash{'b'}:p,1,2,3;
 
-Note that the C<:> prefix is not quite a unary operator.  It just instructs
-the following container to return pairs.  If you say
-
-    :$hashref<b>
-
-you're going to get 
-
-    :hashref($hashref)<b>
-
-which is not what you want.  Instead say
-
-    :%$hashref<b>
-
-[XXX I wonder if we can fudge this the way we fudge "exists" and "delete"?
-These are all macros that speak to the container of the following expression
-rather than evaluating it completely first.  Unary C<:> could the same,
-presumably, in which case it would be perceived as a unary operator,
-much like "delete" is.  Then :$hashref<b> could work as expected.  Another
-way to look at it is that these are prefix adverbs to the final lookup.]
+instead.
 
 Pairs are recognized syntactically at the call level and mystically
 transformed into special C<Named> objects that may be bound to
@@ -620,8 +620,9 @@ so you can refer to it within the body.
 
 It's also possible to declare a slurpy block: C<*&block>.  It slurps
 up any nameless block, specified by C<{...}>, at either the current positional
-location or the end of the syntactic list.  XXX This will turn out
-useful when we discuss adverbs below.
+location or the end of the syntactic list.  Put it first if you want the
+option of putting a block either first or last in the arguments.  Put it
+last if you want to force it to come in as the last argument.
 
 =head2 Argument list binding
 
@@ -643,29 +644,6 @@ the List or are marked as already bound somehow.  In other words,
 parameters are bound normally up to the List parameter, and then
 C<\$args> takes a snapshot of the remaining input without further
 attempts at binding.
-
-=head2 Multidimensional argument list binding
-
-Some functions take multiple Lists that they wish not to be flattened into
-one list.  For instance, zip() wants to iterate several lists in parallel,
-while array and hash subscripts want to process multidimensional slices.
-The set of underlying argument list (List) objects may be bound to a single
-array parameter marked with a C<\>:
-
-    sub foo (\@slices) { ... }
-
-It is allowed to specify a return type:
-
-    sub foo (\@slices --> Num) { ... }
-
-Apart from that, no other parameters are allowed in the signature
-after the List.  Parameters before the List either do not show up in
-the List or are marked as already bound somehow.  In other words,
-parameters are bound normally up to the List parameter, and then
-C<\@args> takes a snapshot of the remaining input without further
-attempts at binding.  The only difference from C<\$args> is that
-C<\@args> pays attention to semicolons and pipes, while C<\$args>
-flattens them.
 
 =head2 Flattening argument lists
 
@@ -695,13 +673,27 @@ operator:
     foo(**@onetothree);          # array flattened before &foo called
 
 
+=head2 Multidimensional argument list binding
+
+Some functions take multiple Lists that they wish not to be flattened into
+one list.  For instance, C<zip()> wants to iterate several lists in parallel,
+while array and hash subscripts want to process multidimensional slices.
+The set of underlying argument list (List) objects may be bound to a single
+array parameter declared with a C<;> twigil:
+
+    sub foo (*@;slices) { ... }
+
+It is allowed to specify a return type:
+
+    sub foo (*@;slices --> Num) { ... }
+
 =head2 Pipe operators
 
 The variadic array of a subroutine call can be passed in separately
 from the normal argument list, by using either of the "pipe" operators:
 C<< <== >> or C<< ==> >>.
 
-Each operator expects to find a call to a variadic subroutine on its
+Each operator expects to find a call to a variadic receiver on its
 "sharp" end, and a list of values on its "blunt" end:
 
     grep { $_ % 2 } <== @data;
@@ -709,15 +701,16 @@ Each operator expects to find a call to a variadic subroutine on its
     @data ==> grep { $_ % 2 };
 
 It binds the (potentially lazy) list from the blunt end to the slurpy
-parameter(s) of the subroutine on the sharp end. So both of the calls
-above are equivalent to:
+parameter(s) of the receiver on the sharp end.  In the case of a receiver
+that is a variadic function, the pipe is received as part of its slurpy list.
+So both of the calls above are equivalent to:
 
     grep { $_ % 2 } @data;
 
 Leftward pipes are a convenient way of explicitly indicating the typical
 right-to-left flow of data through a chain of operations:
 
-    @oddsquares = map { $_**2 } sort grep { $_ % 2 } @nums;
+    @oddsquares = map { $_**2 }, sort grep { $_ % 2 }, @nums;
 
     # more clearly written as...
 
@@ -732,22 +725,178 @@ chain of operations, to make it read left-to-right:
 Note that the parens are necessary there due to precedence.
 
 If the operand on the sharp end of a pipe is not a call to a variadic
-operation, it must be a variable (or variable declaration), in which
-case the list value is bound to the variable. This special case allows
-for "pure" processing chains:
+operation, it must be something else that can be interpreted as a
+list receiver.
 
-    @oddsquares <== map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
+You may use a variable (or variable declaration) as a receiver, in
+which case the list value is bound as the "todo" of the variable.
+Do not think of it as an assignment, nor as an ordinary binding.
+Think of it as iterator creation.  In the case of a scalar variable,
+that variable contains the newly created iterator itself.  In the case
+of an array, the new iterator is installed as the method for extending
+the array.  Unlike with assignment, no clobbering of the array is implied.
+It's therefore more like a push than an assignment.
 
-    @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 } ==> @oddsquares;
+In general you can simply think of a receiver array as representing
+the results of the pipeline, so you can equivalently write any of:
 
-If multiple pipes terminate in a single slurpy destination, they are processed
-sequentially from inside to outside, with C<< <== >> pipes always taking
-precedence over C<< ==> >> pipes.  To the slurpy destination it appears to be a
-single long list.  (Certain operators, however, may read the list of pipes in
-a different order, but only with a specially declared slurpy parameter that
-reveals the dimensionality of the list argument.  Multidimensional slices
-(specified with semicolons) are treated identically.  For example, the zip()
-function uses semicolon to separate its input lists.)
+    my @oddsquares <== map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
+
+    my @oddsquares
+    	<== map { $_**2 }
+	<== sort
+	<== grep { $_ % 2 }
+	<== @nums;
+
+    @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 } ==> my @oddsquares;
+
+    @nums
+    ==> grep { $_ % 2 }
+    ==> sort
+    ==> map { $_**2 }
+    ==> my @oddsquares;
+
+Since the pipe iterator is bound into the final variable, the variable
+can be just as lazy as the pipe that is producing the values.
+
+Because pipes are bound to arrays with "push" semantics, you can have
+a receiver for multiple pipes:
+
+    my @foo;
+    0..2       ==> @foo;
+    'a'..'c'   ==> @foo;
+    say @foo;	# 0,1,2,'a','b','c'
+
+Note how the pipes are concatenated in C<@foo> so that C<@foo>
+is a list of 6 elements.  This is the default behavior.  However,
+sometimes you want to capture the outputs as a list of two iterators,
+namely the two iterators that represent the two input pipes.  You can
+get at those two iterators by using the name C<@;foo> instead, where
+the "pipe" twigil marks a multidimensional array, that is, an
+array of slices.
+
+    0...       ==> @;foo;
+    'a'...     ==> @;foo;
+    pidigits() ==> @;foo;
+
+    for zip(@;foo) { say }
+
+	[0,'a',3]
+	[1,'b',1]
+	[2,'c',4]
+	[3,'d',1]
+	[4,'e',5]
+	[5,'f',9]
+	...
+
+Here C<@;foo> is an array of three iterators, so
+
+    zip(@;foo)
+
+is equivalent to
+
+    zip(@;foo[0]; @;foo[1]; @;foo[2])
+
+A semicolon inside brackets is equivalent to stacked pipes.  The code above
+could be rewritten as:
+
+    (0...; 'a'...; pidigits()) ==> my @;foo;
+    for @;foo.zip { say }
+
+which is in turn equivalent to
+
+    for zip(0...; 'a'...; pidigits()) { say }
+
+A named receiver array is useful when you wish to pipe into an
+expression that is not an ordinary list operator, and you wish to be
+clear where the pipe's destination is supposed to be:
+
+    picklist() ==> my @baz;
+    my @foo = @bar[@baz];
+
+Various contexts may or may not be expecting multi-dimensional slices
+or pipes.  By default, ordinary arrays are flattened, that is, they
+have "cat" semantics.  If you say
+
+    (0..2; 'a'..'c') ==> my @tmp;
+    for @tmp { say }
+
+then you get 0,1,2,'a','b','c'.  If you have a multidim array, you
+can ask for cat semantics explicitly with cat():
+
+    (0..2; 'a'..'c') ==> my @;tmp;
+    for @;tmp.cat { say }
+
+As we saw earlier, "zip" produces little arrays by taking one element
+from each list in turn, so
+
+    (0..2; 'a'..'c') ==> my @;tmp;
+    for @;tmp.zip { say }
+
+produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
+use C<each()> instead:
+
+    (0..2; 'a'..'c') ==> my @;tmp;
+    for @;tmp.each { say }
+
+and then you just get 0,'a',1,'b',2,'c'.  This is good for
+
+    for @;tmp.each -> $i, $a { say "$i: $a" }
+
+In list context the C<@;foo> notation is really a shorthand for C<[;](@;foo)>.
+
+Every lexical scope gets its own implicitly declared C<@;> variable,
+which is the default receiver.  So instead of using C<@;foo> above
+you can just say
+
+    0...       ==> ;
+    'a'...     ==> ;
+    pidigits() ==> ;
+
+    for zip(@;) { say }
+
+Note that with the current definition, the order of pipes is preserved
+left to right in general regardless of the position of the receiver.
+
+So
+
+    ('a'...; 0...) ==> ;
+     for zip(@; <== @foo) -> [$a, $i, $x] { ...}
+
+is the same as
+
+    'a'... ==> ;
+     0...  ==> ;
+     for zip(@; <== @foo) -> [$a, $i, $x] { ...}
+
+which is the same as
+
+    for zip('a'...; 0...; @foo) -> [$a, $i, $x] { ...}
+
+And
+
+    @foo ==> ;
+    0... ==> ;
+    for each(@;) -> $x, $i { ...}
+
+is the same as
+
+    0... ==> ;
+    for each(@foo; @;) -> $x, $i { ...}
+
+which is the same as
+
+    for each(@foo; 0...) -> $x, $i { ...}
+
+Note that the each method is also sensitive to multislicing, so you
+could also just write that as:
+
+    (@foo; 0...).each: -> $x, $i { ...}
+
+Also note that these come out to identical for ordinary arrays:
+
+    @foo.each
+    @foo.cat
 
 =head2 Closure parameters
 
@@ -759,7 +908,7 @@ optional, named, or slurpy.
 
     # and later...
 
-    @first_three = limited_grep 3 {$_<10} @data;
+    @first_three = limited_grep 3, {$_<10}, @data;
 
 Within the subroutine, the closure parameter can be used like any other
 lexically scoped subroutine:
@@ -797,36 +946,27 @@ by which you can refer to that kind later in the signature or body.
 For instance, if you wanted to match any two Dogs as long as they
 were of the same kind, you can say:
 
-    sub matchedset (Dog ^T $fido, T $spot) {...}
+    sub matchedset (Dog ::T $fido, T $spot) {...}
 
-(Note that C<^T> is not required to contain C<Dog>, only
+(Note that C<::T> is not required to contain C<Dog>, only
 a type that is compatible with C<Dog>.)
 
-The C<^> sigil is short for "type" in much the same way that C<&> is
+The C<::> sigil is short for "subset" in much the same way that C<&> is
 short for "sub".  Just as C<&> can be used to name any kind of code,
-so too C<^> can be used to name any kind of type.  Both of them insert
+so too C<::> can be used to name any kind of type.  Both of them insert
 a bare identifier into the grammar, though they fill different syntactic
 spots.
 
 Note that it is not required to capture the object associated with the
 class unless you want it.  The sub above could be written
 
-    sub matchedset (Dog ^T, T) {...}
+    sub matchedset (Dog ::T, T) {...}
 
 if we're not interested in C<$fido> or C<$spot>.  Or just 
 
-    sub matchedset (^T, T) {...}
-
-if we don't care about anything but the matching.  Note that if we'd
-said
-
     sub matchedset (::T, T) {...}
 
-it would have been subtly different.  C<::T> declares that there exists
-an external type C<T> that we just haven't seen the declaration for
-yet.  It doesn't attempt to bind the actual type of of the argument.
-It merely specifies that, by the time this function is called, C<T> is
-defined and both arguments match that type.
+if we don't care about anything but the matching.
 
 =head2 Unpacking array parameters
 
@@ -921,45 +1061,91 @@ the variable, or we can't correctly differentiate:
     my Dog :($fido, $spot) := twodogs();	# one twodog object
 
 Subsignatures can be matched directly with rules by using C<:(...)>
-notation, though if you want a parameter bound into C<$/>, you have
-to say C<< $<eldest> >> within the signature in that case.  Otherwise
-it will try to bind an external C<$eldest> instead, and fail if no such
-variable is declared.
+notation.
 
-Note that a rule-embedded signature has no associated "returns"
-syntactic slot, so you have to use C<< --> >> within the signature
-to specify the return type.
+    push @a, "foo";
+    push @a, \(1,2,3);
+    push @a, "bar";
+    ...
+    my ($i, $j, $k);
+    @a ~~ rx/
+	    <,>				# match initial elem boundary
+	    :(Int $i,Int $j,Int? $k)	# match tuple with 2 or 3 ints
+	    <,>				# match final elem boundary
+	  /;
+    say "i = $<i>";
+    say "j = $<j>";
+    say "k = $<k>" if defined $<k>;
+
+If you want a parameter bound into C<$/>, you have to say C<< $<i> >>
+within the signature.  Otherwise it will try to bind an external C<$i>
+instead, and fail if no such variable is declared.
+
+Note that unlike a sub declaration, a rule-embedded signature has no
+associated "returns" syntactic slot, so you have to use C<< --> >>
+within the signature to specify the type of the tuple, or match as
+an arglist:
+
+    :(Num, Num --> Coord)
+    :(\Coord(Num, Num))
+
+A consequence of the latter form is that you can match the type of
+an object with C<:(\Dog)> without actually breaking it into its components.
+Note, however, that it's not equivalent to say
+
+    :(--> Dog)
+
+which would be equivalent to
+
+    :(\Dog())
+
+that is, match a null tuple of type C<Dog>.  Nor is it equivalent to
+
+    :(Dog)
+
+which would be equivalent to
+
+    :(\Any(Dog))
+
+or
+
+    :([Dog])
+
+and match a tuple-ish item with a single value of type Dog.
+
+Note also that bare C<\(1,2,3)> is never legal in a rule since the
+first paren would try to match literally.
 
 =head2 Attributive parameters
 
-If a submethod's parameter is declared with a C<.> after the sigil (like an
-attribute):
+If a submethod's parameter is declared with a C<.> or C<!> after the
+sigil (like an attribute):
 
-    submethod initialize($.name, $.age) {}
+    submethod initialize($.name, $!age) {}
 
 then the argument is assigned directly to the object's attribute of the
 same name. This avoids the frequent need to write code like:
 
     submethod initialize($name, $age) {
         $.name = $name;
-        $.age  = $age;
+        $!age  = $age;
     }
-
-[Conjecture: within a submethod, attribute names are not virtual if
-we recognize them as our own.]
 
 To rename an attribute parameter you can use the explicit pair form:
 
-    submethod initialize(:moniker($.name), :youth($.age)) {}
+    submethod initialize(:moniker($.name), :youth($!age)) {}
 
 The C<:$name> shortcut may be combined with the C<$.name> shortcut,
-but the dot is ignored for the parameter name, so
+but the twigil is ignored for the parameter name, so
 
-    submethod initialize(:$.name, :$.age) {}
+    submethod initialize(:$.name, :$!age) {}
 
 is the same as:
 
-    submethod initialize(:name($.name), :age($.age)) {}
+    submethod initialize(:name($.name), :age($!age)) {}
+
+Note that C<$!age> actually refers to the private "C<has>" variable that
+can be referred to either as C<$age> or C<$!age>.
 
 =head2 Placeholder variables
 
@@ -1110,7 +1296,7 @@ specifiable as if it were an "or" junction:
 
 Fancier type constrains may be expressed through a subtype:
 
-    subtype Shinola of Any where {.does(DessertWax) and .does(FloorTopping)};
+    subset Shinola of Any where {.does(DessertWax) and .does(FloorTopping)};
     if $shimmer ~~ Shinola {...}  # $shimmer must do both interfaces
 
 Since the terms in a parameter could be viewed as a set of
@@ -1137,24 +1323,16 @@ its parametric value from the actual type of the parameter it is
 associated with.  It declares the new type name in whatever scope
 the surrounding declaration is associated lexical scope.
 
-    sub max (Num ^X @array ) {
+    sub max (Num ::X @array ) {
 	push @array, X.new();
     }
 
 The new type name is introduced immediately, so two such types in
 the same signature must unify compatibly if they have the same name:
 
-    sub compare (Any ^T $x, T $y) {
+    sub compare (Any ::T $x, T $y) {
 	return $x eqv $y;
     }
-
-The C<^> sigil is just short for 'type', so if your keyboard is
-deficient in Latin-1 you can write:
-
-    sub compare (Any type T $x, T $y) {
-	return $x eqv $y;
-    }
-
 
 =head2 Return types
 
@@ -1296,11 +1474,13 @@ Specifies the associativity of an operator explicitly.  Valid values are:
     right	** =		$a op ($b op $c)
     non		cmp <=> ..	ILLEGAL
     chain	== eq ~~	($a op $b) and ($b op $c)
-    list	| & ^ ¥		listop($a, $b, $c)
+    list	| & ^ ¥		listop($a, $b, $c) or listop($a; $b; $c)
 
-Note that operators "equiv" to relationals are automatically considered
-chaining operators.  At other precedence levels, only chaining operators
-participate in a chain.
+
+Note that operators "C<equiv>" to relationals are automatically considered
+chaining operators.  When creating a new precedence level, the chaining
+is determined by by the presence or absence of "C<is assoc('chaining')>",
+and other operators defined at that level are required to be the same.
 
 =item C<PRE>/C<POST>
 
@@ -1630,9 +1810,9 @@ of one or more of its invocants:
 
 =head2 Anonymous hashes vs blocks
 
-C<{...}> is always a block.  However, if it consists of a single list, the
-first element of which is either a hash or a pair, it is executed immediately
-to compose a hash reference.
+C<{...}> is always a block.  However, if it is completely empty or
+consists of a single list, the first element of which is either a hash
+or a pair, it is executed immediately to compose a hash reference.  
 
 The standard C<pair> list operator is equivalent to:
 
@@ -1678,23 +1858,30 @@ the assignment:
 
     (key => $var) = "value";
 
-When binding pairs, names can be used to "match up" lvalues and rvalues:
+When binding pairs, names can be used to "match up" lvalues and rvalues,
+provided you write hte left side as a signature using C<:(...)> notation:
 
-    (:who($name), :why($reason)) := (why => $because, who => "me");
+    :(:who($name), :why($reason)) := (why => $because, who => "me");
 
+(Otherwise the parser doesn't know it should parse the insides as a
+signature and not as an ordinary expression until it gets to the C<:=>,
+and that would be bad.  Possibly we should require a "C<my>" out front
+as well...)
 
 =head2 Out-of-scope names
 
 C<< GLOBAL::<$varname> >> specifies the C<$varname> declared in the C<*>
-namespace.
+namespace.  Or maybe it's the other way around...
 
-C<< CALLER::<$varname> >> specifies the C<$varname> visible in the dynamic
-scope from which the current block/closure/subroutine was called, provided
-that variable is declared "C<env>".  (Implicit lexicals such as C<$_>
-are automatically assumed to be environmental.)
+C<< CALLER::<$varname> >> specifies the C<$varname> visible in
+the dynamic scope from which the current block/closure/subroutine
+was called, provided that variable is declared with the "C<env>"
+declarator.  (Implicit lexicals such as C<$_> are automatically
+assumed to be environmental.)
 
 C<< ENV::<$varname> >> specifies the C<$varname> visible in the
-innermost dynamic scope that declares the variable as "C<env>".
+innermost dynamic scope that declares the variable with the "C<env>"
+declarator.
 
 C<< MY::<$varname> >> specifies the lexical C<$varname> declared in the current
 lexical scope.

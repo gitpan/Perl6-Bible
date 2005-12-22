@@ -1,6 +1,6 @@
+=encoding utf8
 
-
-=head1 TITLE
+=head1 NAME
 
 Synopsis 2: Bits and Pieces
 
@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 27 Oct 2005
+  Last Modified: 23 Nov 2005
   Number: 2
-  Version: 9
+  Version: 13
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -205,7 +205,7 @@ assign an undefined value to such a location.
 Regardless of whether they are defined, all objects support a C<.meta>
 method that returns the class instance managing the current kind of object.
 Any object (whether defined, undefined, or somewhere between) can be
-used as a "kind" when stored in a type variable such as C<^MyClass>.
+used as a "kind" when the context requires it.
 
 =item *
 
@@ -249,22 +249,22 @@ structural type of a variable:
     @	ordered array
     %	unordered hash (associative array)
     &	code
-    ^	class/type/kind variable
-
-In addition, package literals may be introduced with C<::> when they
-would otherwise be misinterpreted:
-
-    ::	package/module/class/role/type literal
+    ::	package/module/class/role/subset/enum/type
 
 Within a declaration, the C<&> sigil also declares the visibility of the
 subroutine name without the sigil within the scope of the declaration.
 
-Within a declaration, the C<^> sigil also declares the visibility of the
-type name without the sigil within the scope of the declaration.
-The first such declaration within a scope is assumed to be an unbound
-type, and takes the actual type of its associated argument.  With
-subsequent declarations the use of the sigil is optional, since the
-bare type name is also declared.
+Within a signature or other declaration, the C<::> sigil followed by an
+identifier marks a parametric type that also declares the visibility
+of a package/type name without the sigil within the scope of the
+declaration.  The first such declaration within a scope is assumed
+to be an unbound type, and takes the actual type of its associated
+argument.  With subsequent declarations in the same scope the use of
+the sigil is optional, since the bare type name is also declared.
+A declaration nested within must not use the sigil if it wishes to
+refer to the same type, since the inner declaration would rebind
+the type.  (Note that the signature of a pointy block counts as part
+of the inner block, not the outer block.)
 
 =item *
 
@@ -286,12 +286,14 @@ is subject to:
     $?foo	compiler hint variable
     $=foo	pod variable
     $<foo>	match variable, short for $/{'foo'}
-    $:foo	:foo($foo) shortcut (allowed only on ordinary variables)
+    $!foo	explicitly private attribute (mapped to $foo though)
+    @;foo	multislice
 
 Most variables with twigils are implicitly declared or assumed to
 be declared in some other scope, and don't need a "my" or "our".
 Attribute variables are declared with C<has>, though, and environment
-variables are declared somewhere in the dynamic scope with C<env>.
+variables are declared somewhere in the dynamic scope with the C<env>
+declarator.
 
 =item *
 
@@ -361,16 +363,22 @@ An argument list object (C<List>) may be created with backslashed parens:
     $args = \(1,2,3,:mice<blind>)
 
 A C<List>'s values are parsed as ordinary expressions.  By default a
-C<List> is lazy.  If all of a C<List>'s arguments are fully evaluated
-(such as when all the arguments are constants), the C<List> is
-promoted to being an immutable C<Tuple>.  (You can use a C<Tuple>
-anywhere you can use a C<List>, so in general it doesn't matter.)
+C<List> is lazy.  This interacts oddly with the fact that a C<List>
+is immutable in the abstract.  Once all of a C<List>'s arguments are
+fully evaluated (which happens at compile time when all the arguments
+are constants), the C<List> functions as an immutable tuple type.
+Before that moment, the eventual value may well be unknown.  All we
+know is that is that we have the promise to make the bits of it
+immutable as they become known.  C<List> objects may contain multiple
+unresolved iterators such as pipes or slices.  How these are resolved
+depends on what they are eventually bound to.  Some bindings are
+sensitive to multiple dimensions while others are not.
 
 =item *
 
 A signature object may be created with coloned parens:
 
-    my ^MySig = :(Int,Num,Complex, Status :mice)
+    my ::MySig = :(Int,Num,Complex, Status :mice)
 
 A signature's values are parsed as declarations rather than ordinary
 expressions.  You may not put arbitrary expressions, but you may, for
@@ -388,7 +396,7 @@ otherwise be untyped:
 =item *
 
 Unlike in Perl 5, the notation C<&foo> merely creates a reference
-to function "foo" without calling it.  Any function reference may
+to function "C<foo>" without calling it.  Any function reference may
 be dereferenced and called using parens (which may, of course,
 contain arguments).  Whitespace is not allowed before the parens,
 but there is a corresponding C<.()> operator, which allows you to
@@ -420,8 +428,24 @@ Each such slice is evaluated lazily.
 
 =item *
 
-Slicing hashes to return pairs rather than values should probably
-be done with an optional selection argument to C<.pairs()> or C<.kv()>.
+To make a slice subscript return something other than values, append an
+appropriate adverb to the subscript.
+
+    @array = <A B>;
+    @array[0,1,2];	# returns 'A', 'B', undef
+    @array[0,1,2]:p;	# returns 0 => 'A', 1 => 'B'
+    @array[0,1,2]:kv;	# returns 0, 'A', 1, 'B'
+    @array[0,1,2]:k;	# returns 0, 1
+    @array[0,1,2]:v;	# returns 'A', 'B'
+
+    %hash = (:a<A>, :b<B>);
+    %hash<a b c>;	# returns 'A', 'B', undef
+    %hash<a b c>:p;	# returns a => 'A', b => 'B'
+    %hash<a b c>:kv;	# returns 'a', 'A', 'b', 'B'
+    %hash<a b c>:k;	# returns 'a', 'b'
+    %hash<a b c>:v;	# returns 'A', 'B'
+
+The adverbial forms all weed out non-existing entries.
 
 =item *
 
@@ -434,8 +458,9 @@ object to reset the iterator explicitly.)
 
 =item *
 
-Sorting a list of pairs should sort on their keys by default.  For
-more on C<sort> see S29.  (If there is no S29 yet, write one.)
+Sorting a list of pairs should sort on their keys by default, then
+on their values.  Sorting a list of lists should sort on the first
+elements, then the second elements, etc.  For more on C<sort> see S29.
 
 =item *
 
@@ -481,6 +506,8 @@ alternate way to write this is:
 
     Foo::Bar::<$baz>
 
+This is resolved at compile time because the variable name is a constant.
+
 =item *
 
 The following pseudo-package names are reserved in the first position:
@@ -497,7 +524,8 @@ The following pseudo-package names are reserved in the first position:
 Other all-caps names are semi-reserved.  We may add more of them in
 the future, so you can protect yourself from future collisions by using
 mixed case on your top-level packages.  (We promise not to break
-any existing top-level CPAN package, of course.)
+any existing top-level CPAN package, of course.  Except maybe ACME,
+and then only for coyotes.)
 
 =item *
 
@@ -541,6 +569,8 @@ the package name as a hash:
 
 Unlike C<::()> symbolic references, this does not parse the argument
 for C<::>, nor does it initiate a namespace scan from that initial point.
+In addition, for constant subscripts, it resolves the symbol at compile time.
+(Symbolic refs always delay lookup till run-time.)
 
 =item *
 
@@ -772,10 +802,11 @@ Consent of the governed, and all that.
 
 =item *
 
-Underscores are allowed between any two digits in a literal number, where
-the definition of digit depends on the radix.  Underscores are not allowed
-anywhere else in any numeric literal, including next to the radix point
-or exponentiator.
+A single underscore is allowed only between any two digits in a
+literal number, where the definition of digit depends on the radix.
+Underscores are not allowed anywhere else in any numeric literal,
+including next to the radix point or exponentiator, or at the beginning
+or end.
 
 =item *
 
@@ -790,49 +821,80 @@ an explicit radix marker for that.  Pre-defined radix prefixes include:
 =item *
 
 The general radix form of a number involves prefixing with the radix
-followed by a colon:
+in adverbial form:
 
-    10:42		same as 0d42 or 42
-    16:dead_beef	same as 0xdeadbeef
-    8:177777		same as 0o177777 (65535)
-    2:1.1		same as 0b1.1 (0d1.5)
+    :10<42>		same as 0d42 or 42
+    :16<dead_beef>	same as 0xdeadbeef
+    :8<177777>		same as 0o177777 (65535)
+    :2<1.1>		same as 0b1.1 (0d1.5)
 
 Extra digits are assumed to be represented by 'a'..'z', so you can go up
-to base 36.  (Use 'a' and 'b' for base twelve, not 't' and 'e'.)
+to base 36.  (Use 'a' and 'b' for base twelve, not 't' and 'e'.)  Alternately
+you can use a list of digits in decimal:
 
-Any radix may include a fractional part.  A dot will always be
-interpreted as a radix point if possible by the longest-token rule,
-so to call a method on a literal with a base greater than 10, the
-safe thing is to put a space before the dot:
+    :60[12,34,56]	# 12 * 3600 + 34 * 60 + 56
+    :100[3,'.',14,16]	# pi
 
-    16:dead_beef.face	# fraction
-    16:dead_beef .face	# method call
+Any radix may include a fractional part.  A dot is never ambiguous
+because you have to tell it where the number ends:
 
-=item
+    :16<dead_beef.face>	# fraction
+    :16<dead_beef>.face	# method call
+
+=item *
 
 Only base 10 (in any form) allows an additional exponentiator starting
-with 'e' or 'E'.  All other radixes must rely on the constant folding
-properties of ordinary multiplication and exponentiation.
+with 'e' or 'E'.  All other radixes must either rely on the constant folding
+properties of ordinary multiplication and exponentiation, or supply the
+equivalent two numbers as part of the string, which will be interpreted
+as they would outside the string, that is, as decimal numbers by default:
 
-    16:dead_beef * 16**8
+    :16<dead_beef> * 16**8
+    :16<dead_beef*16**8>
 
 It's true that only radixes that define 'e' as a digit are ambiguous that
 way, but with any radix it's not clear whether the exponentiator should
 be 10 or the radix, and this makes it explicit:
 
-    0b1.1e10		illegal, could mean any of:
+    0b1.1e10			illegal, could be read as any of:
 
-    2:1.1 * 2**10	1536
-    2:1.1 * 10**10	15,000,000,000
-    2:1.1 * 2:10**2:10	6
+    :2<1.1> * 2 ** 10		1536
+    :2<1.1> * 10 ** 10		15,000,000,000
+    :2<1.1> * :2<10> ** :2<10>	6
+
+So we write those as
+
+    :2<1.1*2**10>		1536
+    :2<1.1*10**10>		15,000,000,000
+    :2«1.1*:2<10>**:2<10>»	6
 
 The generic string-to-number converter will recognize all of these
 forms (including the * form, since constant folding is not available
 to the run time).  Also allowed in strings are leading plus or minus,
-and maybe a trailing Units type for an implied scaling.  Note also that
-leading 0 by itself never implies octal in Perl 6.  Also, the hextonum
-converter function will interpret leading 0b or 0d as hex digits,
-not radix switchers.
+and maybe a trailing Units type for an implied scaling.  Leading and
+trailing whitespace is ignored.  Note also that leading C<0> by itself
+I<never> implies octal in Perl 6.
+
+Any of the adverbial forms may be used as a function:
+
+    :2($x)	# "bin2num"
+    :8($x)	# "oct2num"
+    :10($x)	# "dec2num"
+    :16($x)	# "hex2num"
+
+Think of these as setting the default radix, not forcing it.  Like Perl
+5's old C<oct()> function, any of these will recognize a number starting
+with a different radix marker and switch to the other radix.  However,
+note that the C<:16()> converter function will interpret leading C<0b>
+or C<0d> as hex digits, not radix switchers.
+
+=item *
+
+Characters indexed by hex, octal, and decimal can be interpolated
+into strings using either C<"\x123"> (with C<\o> and C<\d> behaving
+respectively) or using square brackets: C<"\x[123]">.  Multiple
+characters may be put into any of these by separating the numbers
+with comma: C<"\x[41,42,43]">.
 
 =item *
 
@@ -858,18 +920,18 @@ Generalized quotes may now take adverbs:
     :w		:words		Split result on words (no quote protection)
     :ww		:quotewords	Split result on words (with quote protection)
     :t		:to		Interpret result as heredoc terminator
-    :0		:raw		No escapes at all (unless otherwise adverbed)
-    :1		:single		Interpolate \\, \q and \' (or whatever)
-    :2		:double		Interpolate all the following
+    :n		:none		No escapes at all (unless otherwise adverbed)
+    :q		:single		Interpolate \\, \q and \' (or whatever)
+    :qq		:double		Interpolate all the following
     :s		:scalar		Interpolate $ vars
     :a		:array		Interpolate @ vars
     :h		:hash		Interpolate % vars
     :f		:function	Interpolate & calls
     :c		:closure	Interpolate {...} expressions
-    :b		:backslash	Interpolate \n, \t, etc. (implies :m)
+    :b		:backslash	Interpolate \n, \t, etc. (implies :q at least)
 
-Any of these may omit the colon after an initial "q", so we automatically
-get the forms:
+Any of the short forms that don't begin with C<q> may omit the colon
+after an initial "C<q>", so we automatically get the forms:
 
     Form	Same as
     ====	=======
@@ -877,9 +939,7 @@ get the forms:
     qw//	q:w//
     qww//	q:ww//
     qt//	q:t//
-    q0//	q:0//
-    q1//	q:1//	(same as q//)
-    q2//	q:2//	(same as qq//)
+    qn//	q:n//
     qs//	q:s//
     qa//	q:a//
     qh//	q:h//
@@ -997,8 +1057,8 @@ both the sigil and parentheses:
 
     print "The results are &baz().\n"
 
-The function is called in scalar context.  (If it returns a list,
-that list is interpolated as if it were an array.)
+The function is called in scalar context.  (If it returns a list anyway,
+that list is interpolated as if it were an array in string context.)
 
 =item *
 
@@ -1019,14 +1079,6 @@ the last one ends with parens:
 
 (The cascade is basically counted as a single method call for the
 end-bracket rule.)
-
-=item *
-
-A class method can be called as a method if you use the type sigil:
-
-    print "The dog bark is ^Dog.bark().\n"
-
-Again, the parens are required.
 
 =item *
 
@@ -1074,6 +1126,12 @@ No other expressions interpolate.  Use curlies.
 
 =item *
 
+A class method may not be directly interpolated.  Use curlies:
+
+    print "The dog bark is {Dog.bark}.\n"
+
+=item *
+
 The old disambiguation syntax:
 
     ${foo[$bar]}
@@ -1085,10 +1143,6 @@ is dead.  Use closure curlies instead:
     {$foo}[$bar]
 
 (You may be detecting a trend here...)
-
-=item *
-
-To interpolate an unparenthesized class method, use curlies: C<"{Dog.bark}">.
 
 =item *
 
@@ -1105,7 +1159,8 @@ And so on.
 =item *
 
 Backslash sequences still interpolate, but there's no longer any C<\v>
-to mean "vertical tab", whatever that is...
+to mean "vertical tab", whatever that is...  (C<\v> now match vertical
+whitespace in a rule.)
 
 =item *
 
@@ -1117,8 +1172,8 @@ Use curlies with the appropriate function instead: C<"{ucfirst $word}">.
 There are no barewords in Perl 6.  An undeclared bare identifier will
 always be taken to mean a subroutine or method name.  (Class names
 (and other type names) are predeclared, or prefixed with the C<::>
-package literal marker, or the C<^> type sigil.)  A consequence
-of this is that there's no longer any "C<use strict 'subs'>".
+type sigil when you're declaring a new one.)  A consequence of this
+is that there's no longer any "C<use strict 'subs'>".
 
 =item *
 
@@ -1251,7 +1306,7 @@ It depends on the state of their C<.bit> property.  Classes get to decide
 which of their values are true and which are false.  Individual objects
 can override the class definition:
 
-    return 0 but true;
+    return 0 but True;
 
 =back
 

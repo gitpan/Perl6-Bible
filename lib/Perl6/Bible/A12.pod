@@ -1,6 +1,6 @@
+=encoding utf8
 
-
-=head3 TITLE
+=head1 NAME
 
 Apocalypse 12: Objects
 
@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Apr 2004
-  Last Modified: 4 Dec 2004
+  Last Modified: 22 Nov 2005
   Number: 12
-  Version: 5
+  Version: 7
 
 The official unofficial slogan of Perl 6 is "Second System Syndrome
 Done Right!".  After you read this Apocalypse you will at least be
@@ -293,6 +293,11 @@ The accessors are by default read-only outside the class, and you
 can't get at the attributes from outside the class without an accessor.
 (Inside the class you can use the attributes directly.)
 
+[Update: the "C<.>" form of the attribute syntax is now construed to
+always be a virtual dispatch to the accessor, so you can use that
+syntax in any of the child classes too.  To refer to the private
+storage you now use "C<!>" in place of the "C<.>".]
+
 =item *
 
 The invocant of the C<clear> method is implicit.
@@ -323,6 +328,11 @@ No accessor for it is visible outside the class.  (And yes, OO purists,
 our other attributes should probably have been private in the first
 place...that's why we're making it just as easy to write a private
 attribute as a public one.)
+
+[Update: it's now I<easier> to write a private attribute than a public
+one.  We've change the C<:> twigil to C<!>, and made it optional,
+so you can just declare it as C<has $z>, or as C<has $!z> if you wish
+to emphasize the privateness of it.]
 
 If any of that makes your head spin, I'm sure the following will clear
 it right up.  C<:-)>
@@ -362,6 +372,12 @@ manage objects.  They manage interfaces and other abstract behavior
 (like default implementations), and they help classes manage objects.
 As such, a role may only be composed into a class or into another role,
 never inherited from or delegated to.  That's what classes are for.
+
+[Update: in reality things are a little looser than that.  If you use
+a role as if it were a class, it autoinstantiates an anonymous class
+for you that just does that role.  If you use a class as if it were
+a role, it takes a role-like snapshot of the current state of the class
+and freezes it into an anonymous role.]
 
 Classes are arranged in an inheritance hierarchy by their "isa"
 relationships.  Perl 6 supports multiple inheritance, but makes it
@@ -421,6 +437,9 @@ identical to a block-scoped class, which looks like this:
 	method walk () { .paws».move() }
     }
 
+[Update: that C<.paws> would have to be write C<@.paws> these days unless
+you put the invocant into C<$_>.]
+
 An incomplete class definition makes use of the C<...> ("yada, yada,
 yada") operator:
 
@@ -442,6 +461,10 @@ which conveniently stringifies to the name of the class for Perl
 the invocant of C<new> is an object of type C<Class>, not a string as
 in Perl 5.
 
+[Update: there is no C<Class> class now.  The C<Dog> object is of
+type C<Dog>, the same type as any of its instances.  It's just not
+a real C<Dog>.  It's an abstract C<Dog>.]
+
 Unmodified, a class declaration always declares a global name.
 But if you prefix it with C<our>, you're defining an inner class:
 
@@ -453,6 +476,11 @@ But if you prefix it with C<our>, you're defining an inner class:
 The full name of the inner class is C<Cell::Golgi>, and that name can
 be used outside of C<Cell>, since C<Golgi> is declared in the C<Cell> package.
 (Classes may be declared private, however.  More later.)
+
+[Update: bare class declarations now always default to C<our>.  The top
+level class ends up in the global space merely because files start out
+being parsed in the C<*> package (aka C<GLOBAL::>), so that's where
+the first class declaration puts its name.]
 
 =head3 Class traits
 
@@ -545,16 +573,26 @@ that manages the class object.  In any event, you can get from the ordinary
 class object to its corresponding metaclass object via the C<.meta>
 method, which every object supports.
 
+[Update: every C<Dog> object (class or instance) just points to its
+metaclass instance.  The C<Dog> class object isn't either a C<Class>
+or a C<MetaClass> object.  Perhaps it does a C<Class> role though.]
+
 By the way, a C<Class> is a C<Module> which in turn is a C<Package> which in
 turn is an C<Object>.  Or something like that.  So a class can always
 be used as if it were a mere module or package.  But modules and packages
 don't have a C<.dispatch> method...
 
+[Update: the preceding paragraph is really only true if you take it
+as talking about the metaclasses, not the classes.  A C<Dog> is not
+a C<Module>.  C<Dog.meta> is a metaclass instance that can do modular
+and package operations as well as class operations, and all these
+metaobjects use packages as their global storage.]
+
 By default, classes in Perl are left open.  That is, you can add
 more methods later.  (However, an application may close them.)
 For discussion of this, see the section on "Open vs Closed Classes".
 
-=head2 Class Name Semantics
+=head1 Class Name Semantics
 
 Class names (and module names) are just package names.
 
@@ -581,6 +619,7 @@ Again, it scans out through various scopes, and only if no local
 scopes define package C<Fish::Carp> do you get the global definition.
 And again, you can force it by saying C<::*Fish::Carp>.  (Or just
 C<*Fish::Carp> in places where the C<*> unary operator is not expected.)
+C<GLOBAL::Fish::Carp> means the same thing.
 
 You can interpolate a parenthesized expression within a package name
 after any C<::>.  So these are all legal package names (or module
@@ -653,6 +692,10 @@ to parse the name to get that info.
 We'll make more of this when we talk about private methods and
 attributes.  Speaking of methods...
 
+[Update: Private attributes are now marked with C<!> rather than C<:>,
+but nowadays you should just use a lexically scoped class if you want
+a private class.]
+
 =head1 Methods
 
 Methods are the actions that a class knows how to invoke on behalf of
@@ -694,7 +737,9 @@ or more generically using the C<::_> "current class" pronoun:
 
     method doit (::_ $self: $a, $b, $c) { ... }
 
-[Update: The current class is now named via C<::?CLASS>.]
+[Update: The current lexical class is now named via C<::?CLASS>.
+To capture the actual class of the invocant, use a type variable
+like C<::RealClass> in the declaration, with or without the C<$self>.]
 
 In any case, the method sets the current invocant as the topic, which is
 also known as the C<$_> variable.  However, the topic can change depending
@@ -703,12 +748,17 @@ invocant when the meaning of C<$_> might change.  (For further discussion
 of topics see Apocalypse 4.  For a small writeup on sub signatures see
 Apocalypse 6.)
 
+[Update: methods do not set the topic now unless you declare the invocant
+with the name C<$_>.]
+
 A private method is declared with a colon on the front:
 
     method :think (Brain $self: $thought)
 
 Private methods are callable only by the class itself, and by trusted
 "friends".  More about that when we talk about attributes.
+
+[Update: private methods are marked with C<!> now rather than C<:>.]
 
 =head2 Use of Methods
 
@@ -746,6 +796,9 @@ a term or operator, so you can write things like this:
 [Update: This is retracted.  Parens are always required if there are
 arguments.]
 
+[Update: As an alternative to parens, you can turn any otherwise legal
+method call into a list operator by appending a C<:>.]
+
 (Parens are always required around the argument list when a method call
 with arguments is interpolated into a string.)
 
@@ -767,13 +820,15 @@ is simply rejected.  So
 produces a parse error.
 
 [Update: The preceding is also retracted.  None of those would be
-interpreted as arguments now.  However, the following is still true.]
+interpreted as arguments now.  However, most of the following is still true.]
 
 In particular, curlies, brackets, or parens would be interpreted
 as postfix subscripts or argument lists if you leave out the space.
 In other words, Perl 6 distinguishes:
 
     $obj.method ($x + $y) + $z	# means $obj.method(($x + $y) + $z)
+
+[Update: that's illegal now.]
 
 from
 
@@ -797,6 +852,11 @@ between the method call and the argument list:
 are arguments.  (However, you can pass an adverbial block using C<:{}>
 notation with a null key.  That does not count as an ordinary argument.)]
 
+[Update: The colon disambiguator is back again.  The problem with
+precedence is now solved by requiring that a bare closure in the list
+is always interpreted as the final argument unless followed by a comma
+or comma surrogate.]
+
 If a method is declared with the trait "C<is rw>", it's an lvalue
 method, and you can assign to it just as if it were an ordinary
 variable:
@@ -815,6 +875,8 @@ call anywhere you might use a variable:
 (Though occasionally you might need to supply parentheses to
 disambiguate, since the compiler can't always know at compile time
 whether the method has any arguments.)
+
+[Update: the parens (or a colon) are required if there are arguments.]
 
 Method calls on container objects are obviously directed to the
 container object itself, not to the contents of the container:
@@ -846,6 +908,9 @@ it directly in the variable's declaration.  Otherwise the optimizer
 would have to assume that every variable has semantics that are
 unknowable in advance, and we would have to call it a pessimizer
 rather than an optimizer.)
+
+[Update: the function is now called C<variable()> instead of tied()
+to avoid that confusion.]
 
 =head3 The "indirect object" notation
 
@@ -997,9 +1062,6 @@ for clarity anyway:
 
     print ($obj.meth): "Howdy, world!\n";
 
-[Update: There is no disambiguating colon on dot calls anymore, so
-a colon there can only indicate an indirect object to the print now.]
-
 =head3 Calling private methods
 
 A private method does not participate in normal method dispatch.
@@ -1018,6 +1080,8 @@ public dot operator from the private dot-colon operator.  That is:
           .say("Yes!")		# unary form
     $brain.:think("No!")	# always calls private :think method
           .:think("No!")	# unary form
+
+[Update: we now use C<!> instead of C<.:> and there is no unary form.]
 
 The inclusion of the colon prevents any kind of "virtual" behavior.
 Calling a private method is illegal except under two very specific
@@ -1056,6 +1120,10 @@ optional in a class method declaration if you wish to specify the
 type of the invocant.  (Untyped explicit invocants are allowed to
 "squint", however.)
 
+[Update: squinting is no longer necessary now that we've defined class
+objects to merely be uninstantiated prototypes of the same type as the
+instances in the class.]
+
 =head2 Class Invocant
 
 To declare an ordinary class method, such as a constructor, you say
@@ -1065,6 +1133,8 @@ something like:
 
 Such a method may only be called with an invocant that "isa" C<Class>,
 that is, an object of type C<Class>, or derived from type C<Class>.
+
+[Update: no Class class exists.]
 
 =head2 Class|object Invocant
 
@@ -1091,6 +1161,8 @@ which would be the equivalent of
 Well, actually, you I<could> say that, but it would require that
 you have an existing C<Dog>-compatible object in order to create a new one.
 And that could present a little bootstrapping problem...
+
+[Update: we simply made C<Dog> a C<Dog>-compatible object.]
 
 (Though it could certainly cure the boot chewing problem...)
 
@@ -1241,6 +1313,12 @@ instance attribute variable (that is, a "C<has>" variable) from within
 a class method.  Class methods may only access class attributes,
 not instance attributes.  See below.)
 
+[Update: class methods are no longer distinguished from instance
+methods by the compiler, except insofar as the compiler can tell that a
+method refers to instance variables in the body.  It's a run-time error
+to ask for an attribute of a class object, but that's because the class
+object doesn't have the attribute, not because it's a class object.]
+
 Bare attributes are automatically hidden from the outside world because
 their sigiled names cannot be seen outside the class's package.
 This is how Perl 6 enforces encapsulation.  Outside the class the
@@ -1258,6 +1336,9 @@ some derived class's overriding method, which might in turn call
 back to this class's accessor as a super method.  (So in general,
 an accessor method should always refer to its actual variable name
 rather than the accessor method name to avoid infinite recursion.)
+
+[Update: all public $.foo variables are now virtual, and the actual
+private storage is represented by $!foo.]
 
 You may write your own accessor methods around the bare attributes,
 but if you don't, Perl will generate them for you based on the
@@ -1301,8 +1382,8 @@ have:
 
 [Update: A regex-scoped variable now looks like C<< $<foo> >> instead.
 A C<$?foo> variable is now a compiler variable, and a C<$=foo>
-variable is a POD variable.  By the way, lately I've been calling
-the secondary sigils "twigils".]
+variable is a POD variable.  A private attribute is C<$!foo>.
+By the way, lately we've been calling the secondary sigils "twigils".]
 
 As a form of the dreaded "Hungarian notation", secondary sigils are
 not introduced lightly.  We define secondary sigils only where we
@@ -1420,6 +1501,8 @@ type--it can either be the class or an object of the class.  (Declare
 your own accessors if you have a philosophical reason for forcing
 the type one way or the other.)
 
+[Update: squinting no longer necessary.]
+
 The disadvantage of using "C<our>" above is that that both of these are
 accessible from outside the class via their package name (though the
 private one is Officially Ignored, and cannot be named simply by saying
@@ -1472,6 +1555,15 @@ The default C<new> constructor looks like this:
 	return $class.bless(0, *%_);
     }
 
+[Update: now that we have parametric types it's more like:
+
+    method new (::T: *%_) {
+	return ::T.bless(*%_);
+    }
+
+That binds the class type of the invocant regardless of how instantiated
+the invocant is.  Also, the candidate argument need not be supplied.]
+
 The arguments for the default constructor are always named arguments,
 hence the C<*%_> declaration to collect all those pairs and pass them
 on to bless.
@@ -1515,7 +1607,8 @@ So as it happens, C<0> is short for the layout "P6opaque".
 
 [Update: There is no C<0> argument.  Just leave it out if you wish to
 declare a C<P6opaque> object.  If you wish to pass some other representation
-name to C<CREATE>, use a named argument like C<< :CREATE[:repr<Cstruct>] >>.]
+name to C<CREATE>, just call C<CREATE> first and pass the result of that
+as your candidate to C<bless>,]
 
 Any additional arguments to C<.bless> are automatically passed on to
 C<CREATE> and C<BUILDALL>.  But note that these I<must> be named arguments.
@@ -1546,6 +1639,10 @@ to disallow that on the constructor level.  In fact, you'll note that
 the default C<.new> above requires a C<Class> as its invocant.  Unless you
 override it, it doesn't allow an object for the constructor invocant.
 Go thou and don't likewise.
+
+[Update: Sorry, the new C<::T> parametric type syntax doesn't care
+whether the invocant is a class or an object.  It does, however,
+document that you're only interested in the type of the invocant.]
 
 =head3 The Default Cloner
 
@@ -1581,9 +1678,15 @@ don't care to write all your constructors to create the data structure
 before calling C<.bless>, you can define your own C<CREATE> submethod, and
 it will override the standard one for all constructors in the class.
 
+[Update: the C<$self> here should probably read C<::T>.]
+
 =head2 BUILDALL
 
     submethod BUILDALL ($self: *%args) {...}
+
+[Update: but this one actually is the new self, the candidate created
+by C<CREATE>.  It's just not entirely instantiated until C<BUILDALL> is
+done.]
 
 After the data structure is created, it must be populated by each
 of the participating classes (and roles) in the proper order.
@@ -1615,6 +1718,10 @@ named after the attributes:
 	...
     }
 
+[Update: that would be C<< (:$tail, :@legs, *%extraargs) >> now, but
+you don't really need the colons since positional declarations
+can still be set by name.]
+
 That occurs so frequently that there's a shorthand available in the
 signature declaration.  You can put the attributes (distinguished
 by those secondary sigils, you'll recall) right into the signature.
@@ -1622,6 +1729,8 @@ The following means essentially the same thing, without repeating
 the names:
 
     submethod BUILD (+$.tail, +@:legs, *%extraargs) {...}
+
+[Update: @!legs now.]
 
 It's actually unnecessary to declare the C<*%extraargs> parameter.
 If you leave it out, it will default to C<*%_> (but only on methods
@@ -1781,6 +1890,8 @@ its proxies, so it's really more like a subroutine call in disguise:
 
     $object.:meth(@args)  # always calls private :meth
            .:meth(@args)  # unary form
+
+[Update: uses C<!> now, no unary form.]
 
 It is an error to use C<.:> unless there is a correspondingly named
 "colon" method in the appropriate class, just as it is an error to
@@ -2080,6 +2191,12 @@ multis so that only the inner multi's long names are considered.
 a kind of backstop.)  The same policy applies to both nested lexical
 scopes and derived subclasses.
 
+[Update: now you can declare a "first multi" that is simulataneously
+an ordinary sub and the final arbiter of subsequent multi declarations
+in this scope.  This is done with the "C<proto>" keyword in place of
+the "C<multi>" keyword".  Oh, and the "C<sub>" is optional with either
+"C<multi>" or "C<proto>".]
+
 Actually, up till now we've been oversimplifying the concept of
 "long name" slightly.  The long name includes only that part of
 the signature up to the first colon.  If there is no colon, then the
@@ -2197,6 +2314,8 @@ global namespace (represented in Perl 6 with an initial * for the
 it's a good old-fashioned sub call, and no multiple dispatch is done.
 End of story.
 
+[Update: a "proto" counts as a "sub" here, not as a "multi".]
+
 However, if the first declaration we come to is a multi, then lots of
 interesting stuff happens.  (Fortunately for our performance, most of
 this interesting stuff can happen at compile time, or upon first use.)
@@ -2225,6 +2344,11 @@ short name is not declared multi, it serves as a "stopper", just as a
 non-multi sub does in a lexical scope.  (Though that "stopper" method
 can of course redispatch further up the inheritance tree, just as a
 "stopper" lexical sub can always call further outward if it wants to.)
+
+[Update: we now have the "proto" keyword to specifically mark such
+a routine.  It also lets the routine supply known argument names for
+any multis found in the lexical scope, so the compiler can be smart
+about mapping named args to positionals.]
 
 Now we have our list of candidates, which may or may not include every
 sub and method with the same short name, depending on whether we hit a
@@ -2270,6 +2394,8 @@ behavior:
 
 In many cases, of course, the default routine won't redispatch, but simply
 do something generically appropriate.
+
+[Update: we probably aren't using the "Manhattan" distance indicated above.]
 
 =head3 Single dispatch semantics
 
@@ -2329,7 +2455,7 @@ As it happens, we've defined the semantics so that it doesn't matter.
 Since all single invocant methods are included automatically in
 multimethod dispatch, and since multiple dispatch degenerates to
 single dispatch when there's only one invocant, it doesn't matter
-which way your write it.  The effect is the same either way.  (Unless
+which way you write it.  The effect is the same either way.  (Unless
 you've defined your own non-multi print routine in a surrounding
 lexical scope.  But then, if you've done that, you probably did it
 on purpose I<precisely> because you wanted to disable the default
@@ -2344,6 +2470,11 @@ in the list even if it's ambiguous.  The dispatch list is actually
 kept in C<@CALLER::methods>, which is a list of pairs, the key of each
 indicating the "distance" rating, and the value of each containing
 a reference to the method to call (as a sub ref).
+
+[Update: a proto routine can't use "C<next METHOD>" because the original
+dispatch list is exhausted.  Maybe.  If so, we can arrange for C<call()>
+to propagate the call outward, as if the proto routine is a wrapper
+around the rest of the world.]
 
 =head2 Making Fiends, er, Friends.
 
@@ -2372,6 +2503,16 @@ It's not clear whether roles should be allowed to grant trust.
 In the absence of evidence to the contrary, I'm inclined to say not.
 We can always relax that later if, after many large, longitudinal,
 double-blind studies, it turns out to be both safe and effective.
+
+[Update: the intent of the previous paragraph was to describe whether
+a role could grant trust on behalf of the composed class, but it
+was ambiguously stated, and sometimes misinterpreted.  It seems to me
+that a role could grant trust to private routines in its own scope,
+however, since they're basically just sub calls anyway.  On the other
+hand, the relationship of the role's package namespace to its eventual
+lexical namespace is perhaps problematic.  At some point the object
+has to keep track of all its cloned role closures and provide the
+right one to private sub callers.]
 
 =head1 Overloading
 
@@ -2494,6 +2635,8 @@ See Apocalypse 6 for much more on the definition of user-defined
 operators, their precedence, and their associativity.  Some of it
 might even still be accurate.
 
+[Update: nowadays see Synopsis 6 instead.]
+
 =head1 Class Composition with Roles
 
 Objects have many kinds of relationships with other objects.  One of
@@ -2555,6 +2698,8 @@ instead:
 	}
     }
 
+[Update: that'd have to be C<self.call()> or C<$.call()> these days.]
+
 A role may not inherit from a class.  It may be composed of other
 roles, however.  In essence, a role doesn't know its own type yet,
 because it will be composed into another type.  So if you happen
@@ -2585,6 +2730,14 @@ other types explicitly:
     role Pet[Type $petfood = TableScraps] {
 	method feed (::($petfood) $food) {...}
     }
+
+[Update: with type sigils that would just be
+
+    role Pet[::Petfood = TableScraps] {
+	method feed (Petfood $food) {...}
+    }
+
+now.]
 
 Unlike certain other languages you may be altogether too familiar with,
 Perl uses square brackets for parametric types rather than angles.
@@ -2624,6 +2777,8 @@ to the class, not the role.  The class must define any private
 implementations that are not supplied by the role, just as with
 public methods.  But private method names are never visible outside
 the class (except to its trusted proxy classes).
+
+[Update: see S12 for refinements of this.]
 
 =head3 Encapsulated Attributes
 
@@ -2678,6 +2833,8 @@ us to...
 We can also have private attributes:
 
     has Nose $:sniffer .= new();
+
+[Update: that's C<$!sniffer> now.]
 
 And encapsulated private attributes lead us to...
 
@@ -2856,6 +3013,8 @@ a class name.  It's an enumerated value of a bit class.  So what we
 said was a shorthand for something like:
 
     0 but bit::true
+
+[Update: that's C<bool::True> these days.]
 
 In earlier Apocalypses we talked about applying properties with C<but>.
 This has now been unified with mixins, so any time you say:
@@ -3152,7 +3311,15 @@ time, the following C<.wag> method is autogenerated for you:
 
 (It's necessary to specify a C<Lazy> context for the arguments to a such a
 delegator method because the actual signature is supplied by the tail's
-C<.wag> method, not your method.)  So as you can see, the delegation
+C<.wag> method, not your method.)
+
+[Update: that's more like:
+
+    method wag (\$args) { $!tail.wag(*$args) }
+
+nowadays.]
+
+So as you can see, the delegation
 syntax already cuts our typing in half, not to mention the reading.
 The win is even greater when you specify multiple methods to delegate:
 
@@ -3491,8 +3658,8 @@ don't accidentally try to derive from it.
 like the confusion engendered by use the word "type" to mean "subtype",
 so the syntax is now any of:
 
-    my subtype Str_not2b of Str where /^[isnt|arent|amnot|aint]$/;
-    my Str subtype Str_not2b where /^[isnt|arent|amnot|aint]$/;
+    my subset Str_not2b of Str where /^[isnt|arent|amnot|aint]$/;
+    my Str subset Str_not2b where /^[isnt|arent|amnot|aint]$/;
 
 .]
 
@@ -3554,7 +3721,7 @@ of any class including C<Any>, they are actually rather orthogonal to
 the class system.
 
 [Update: Everywhere the preceding section says "type", change to "subtype",
-including the keyword.  And change C<::=> to C<of>.]
+except for the keyword, which changes to "subset".  And change C<::=> to C<of>.]
 
 =head1 Enums
 
@@ -3608,8 +3775,8 @@ question has the right semantics mixed in.  Two builtin enums are:
 
 [Update: Now just:
 
-    our bit enum *bool is <false true>;
-    our bit enum *taint is <untainted tainted>;
+    our bit enum *bool is <False True>;
+    our bit enum *taint is <Untainted Tainted>;
     
 .]
 
@@ -4184,6 +4351,9 @@ and it knows (even if you don't) that you mean
 name, so Perl will search any derived classes for a redefined C<Dog> class
 before it settles on the outermost aliased C<Dog> class.)
 
+[Update: you can also prefix the module name with the language to
+borrow it from, like "C<use perl5:DBI;>".]
+
 =head1 Introspection
 
 It's easy to specify what Perl 6 will provide for introspection:
@@ -4197,6 +4367,9 @@ place.  The metamethods are in the metaobject, not in the class object.
 (Well, actually, those are the same object, but a class object ignores
 the fact that it's also a metaobject, and dispatches by default to its
 own methods, not the ones defined by the metaclass.)
+
+[Update: It's not true that the class object is the same as the metaobject.]
+
 To get to the metamethods of an ordinary class object you have to use
 the C<.meta> method:
 
@@ -4213,6 +4386,9 @@ object:
 That's equivalent to
 
     $obj.dispatcher.meta.getmethods();
+
+[Update: There's no C<.dispatcher> since all objects have a C<.meta> now, and
+all objects of a class including class objects are of the same type.]
 
 As for which parts of a class are considered metadata--they all are,
 if you scratch hard enough.  Everything that is not stored directly as
@@ -4485,6 +4661,10 @@ But by default we only provide the Latin-1 compatible versions.
 It would be easy to overuse Unicode in Perl 6, so we're trying to
 underuse Unicode for small values of 6.  (Not to be confused with ⁶,
 or ⅵ.)
+
+[Update: We switched to bare angles for this.  Double angles now
+do shell-like interpolation, so double angles relate to single angles
+much like double quotes relate to single quotes.]
 
 =head2 Vector Operators Renamed Back to "hyper" Operators
 

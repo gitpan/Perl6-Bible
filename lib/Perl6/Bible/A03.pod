@@ -1,6 +1,6 @@
+=encoding utf-8
 
-
-=head1 TITLE
+=head1 NAME
 
 Apocalypse 3: Operators
 
@@ -788,7 +788,7 @@ this is a primitive in the same sense that continuations would be. For
 now let's assume we can build backtracking operators from
 continuations. Those will be covered in a future apocalypse.
 
-[Update: Also, the fact that Perl 6 regexes can call closures with
+[Update: Also, the fact that Perl 6 patterns can call closures with
 backtracking covers most of this functionality.  See A5 and S5.]
 
 =head2 RFC 143: Case ignoring C<eq> and C<cmp> operators
@@ -1130,7 +1130,7 @@ This is now the bitwise XOR operator. Recall that unary C<~> (1's
 complement) is simply an XOR with a value containing all 1 bits.
 
 [Update: C<~> is now string concatenation.  Bitwise XOR is C<+^> or C<~^>
-depending on whether your doing numeric xor or stringwise.]
+depending on whether you're doing numeric xor or stringwise.]
 
 =head2 Binary C<~~>
 

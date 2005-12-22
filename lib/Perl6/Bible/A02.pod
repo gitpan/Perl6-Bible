@@ -1,6 +1,6 @@
+=encoding utf-8
 
-
-=head1 TITLE
+=head1 NAME
 
 Apocalypse 2: Bits and Pieces
 
@@ -542,8 +542,8 @@ rather than just values. (We may not need a special slice syntax for
 that if it's possible to typecast back and forth between pair lists and
 ordinary lists.)
 
-[Update: Slicing to get a pairlist is just a special argument to the
-C<.pairs> or C<.kv> methods.]
+[Update: Slicing to get a pairlist can be done by attaching a C<:p>
+modifier to the subscript.]
 
 =head2 RFC 196: More Direct Syntax for Hashes
 
@@ -1247,7 +1247,7 @@ addition to the object in question:
 
     my int @table is dim(366,24,60);
 
-[Update: that should be "shape(366;24;60)" according to S9...]
+[Update: that should be "@table[^366;^24;^60]" according to S9...]
 
 Our examples above are assuming an argument of C<(1)>:
 
@@ -1373,7 +1373,7 @@ run-time property only if a method can't be found, so it shouldn't
 impact ordinary method call overhead.)
 
 [Update: No, that's always an ordinary method call now.  Use
-C<var($foo).bar> to get at a property of the variable, or to call
+C<variable($foo).bar> to get at a property of the variable, or to call
 any other method on the variable object rather than the referent
 of C<$foo>.]
 

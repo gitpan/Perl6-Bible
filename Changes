@@ -1,4 +1,12 @@
 ---
+version: 0.23
+date:   Wed Dec 22 09:41:50 CST 2005
+changes:
+- Improved formatting for PAUSE indexing
+- Added Synopsis 22 draft (CPAN)
+- Mention the nascent Perl6::Doc project
+- Emphasis the role of Synopses, so "p6bible 12" displays S12
+---
 version: 0.22
 date:    Mon Oct 31 16:27:32 PST 2005
 changes:

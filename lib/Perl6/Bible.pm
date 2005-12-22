@@ -1,26 +1,33 @@
 package Perl6::Bible;
-use Spiffy -Base;
+use 5.000;
 use File::Spec;
 
-our $VERSION = '0.22';
+our $VERSION = '0.23';
+
+sub new {
+    my $class = shift;
+    bless({@_}, $class);
+}
 
 sub process {
+    my $self = shift;
     my ($args, @values) = $self->get_opts(@_);
     $self->usage, return
       unless $self->validate_args($args);
     $self->help, return
-      if $args->{-h} || 
+      if $args->{-h} ||
          $args->{'--help'};
-    $self->version, return 
-      if $args->{-v} || 
+    $self->version, return
+      if $args->{-v} ||
          $args->{'--version'};
-    $self->contents, return 
-      if $args->{-c} || 
+    $self->contents, return
+      if $args->{-c} ||
          $args->{'--contents'};
     $self->perldoc($args, @values);
 }
 
 sub get_opts {
+    my $self = shift;
     my ($args, @values) = ({});
     for (@_) {
         $args->{$_}++, next if /^\-/;
@@ -30,10 +37,11 @@ sub get_opts {
 }
 
 sub validate_args {
+    my $self = shift;
     my $args = shift;
     for (keys %$args) {
         return unless /^(
-            -h | --help | 
+            -h | --help |
             -v | --version |
             -c | --contents |
             -t | -u | -m | -T
@@ -42,10 +50,18 @@ sub validate_args {
     return 1;
 }
 
+sub normalize_name {
+    my $self = shift;
+    my $id   = uc(shift);
+    $id =~ s/^(\d+)$/sprintf('S%02s', $1)/eg;
+    return $id;
+}
+
 sub get_raw {
+    my $self = shift;
     my $id = shift
       or die "Missing argument for get_raw";
-    my $document = uc($id);
+    my $document = $self->normalize_name($id);
     $document .= '.pod';
     $document = File::Spec->catfile("Perl6", "Bible", $document);
     my $document_path = '';
@@ -64,9 +80,10 @@ sub get_raw {
 }
 
 sub perldoc {
+    my $self = shift;
     my $args = shift;
     my $document = "Perl6::Bible";
-    $document .= '::' . uc(shift)
+    $document .= '::' . $self->normalize_name(shift)
       if @_;
     my $options = join ' ', grep { defined $args->{$_} } qw(-t -u -m -T);
     $options ||= '';
@@ -88,7 +105,7 @@ sub help {
 Usage: p6bible [options] [document-id]
 View the Perl 6 Canon.
 
-Possible values for document-id are: 
+Possible values for document-id are:
   A01 - A33  (Perl 6 Apocalypses)
   E01 - E33  (Perl 6 Exegeses)
   S01 - S33  (Perl 6 Synopses)
@@ -104,7 +121,7 @@ _
 
 sub version {
     print <<_;
-This is the Perl 6 Canon as of October 31st, 2005 AD
+This is the Perl 6 Canon as of December 22, 2005
 (bundled in Perl6-Bible-$VERSION)
 _
 }
@@ -130,41 +147,74 @@ __DATA__
 
 =head1 NAME
 
-Perl6::Bible - The Gospel according to Cabal
+Perl6::Bible - Perl 6 Design Documentations
+
+=head1 VERSION
+
+This document describes version 0.23 of Perl6::Biblr, released
+December 22, 2005.
 
 =head1 SYNOPSIS
 
     > p6bible -h     # Show p6bible help
     > p6bible -c     # Show Table of Contents
     > p6bible s05    # Browse Synopsis 05
+    > p6bible 5      # Same thing
 
 =head1 DESCRIPTION
 
 This Perl module distribution contains all the latest Perl 6
 documentation and a utility called C<p6bible> for viewing it.
 
-=head2 Apocalypses
+Below is the list of documents that are currently available; a number
+in the column indicates the document is currently available. An
+asterisk next to a number means that the document is an unofficial
+draft written by a member of the Perl community but not approved by
+the Perl 6 Design Team.
 
-The document codes C<A01 - A33> refer to the Perl 6 Apocalypses.
+  S01  The Ugly, the Bad, and the Good   (A01)
+  S02  Bits and Pieces                   (A02) (E02)
+  S03  Operators                         (A03) (E03)
+  S04  Syntax                            (A04) (E04)
+  S05  Pattern Matching                  (A05) (E05)
+  S06  Subroutines                       (A06) (E06)
+       Formats                                 (E07)
+       References
+  S09  Data Structures
+  S10  Packages
+  S11  Modules
+  S12  Objects                           (A12)
+  S13  Overloading
+       Tied Variables
+       Unicode
+       Interprocess Communication
+  S17* Threads
+       Compiling
+       The Command-Line Interface
+       The Perl Debugger                 (A20*)
+       Internals and Externals
+  S22* CPAN
+       Security
+       Common Practices
+       Portable Perl
+  S26* Perl Documentation
+  S27* Perl Culture
+  S28* Special Names
+  S29* Functions
+       The Standard Perl Library
+       Pragmatic Modules
+       Standard Modules
+       Diagnostic Modules
 
-Larry Wall started the Apocalypse series as a systematic way of
-answering the RFCs (Request For Comments) that started the design
-process for Perl 6.  Each Apocalypse corresponds to a chapter in the
-book _Programming Perl_, 3rd edition, and addresses the features
-relating to that chapter in the book that are likely to change.
+=head1 NOTES
 
-Larry addresses each relevant RFC, and gives reasons why he accepted
-or rejected various pieces of it.  But each Apocalypse also goes
-beyond a simple "yes" and "no" response to attack the roots of the
-problems identified in the RFCs.
+Perl 6 developers are refactoring relevant introductions,
+tutorials, specifications into the L<Perl6::Doc> namespace;
+expect to see this module subsumed by it in the near future.
 
-=head2 Exegeses
-
-The document codes C<E01 - E33> refer to the Perl 6 Exegeses.
-
-Damian Conway's Exegeses are extensions of each Apocalypse.  Each
-Exegesis is built around a practical code example that applies and
-explains the new ideas.
+If you are interested in helping out the documentation project,
+please contact us on C<irc.freenode.net #perl6> or
+C<perl6-compiler@perl.org>.
 
 =head2 Synopses
 
@@ -181,47 +231,28 @@ through implementation.
 In other words, they may change slightly or radically. But the
 expectation is that they are "very close" to the final shape of Perl 6.
 
-=head1 CONTENTS
+=head2 Apocalypses (outdated)
 
-This is the list of documents that are currently available; a number
-in the column indicates the document is currently available. An
-asterisk next to a number means that the document is an unofficial
-draft written by a member of the Perl community but not approved by
-the Perl 6 Design Team.
+The document codes C<A01 - A33> refer to the Perl 6 Apocalypses.
 
-  A01       S01  The Ugly, the Bad, and the Good
-  A02  E02  S02  Bits and Pieces
-  A03  E03  S03  Operators
-  A04  E04  S04  Syntax
-  A05  E05  S05  Pattern Matching
-  A06  E06  S06  Subroutines
-       E07       Formats
-                 References
-            S09  Data Structures
-            S10  Packages
-            S11  Modules
-            S12  Objects
-            S13  Overloading
-                 Tied Variables
-                 Unicode
-                 Interprocess Communication
-            S17* Threads
-                 Compiling
-                 The Command-Line Interface
-  A20*           The Perl Debugger
-                 Internals and Externals
-                 CPAN
-                 Security
-                 Common Practices
-                 Portable Perl
-            S26* Perl Documentation
-            S27* Perl Culture
-            S28* Special Names
-            S29* Functions
-                 The Standard Perl Library
-                 Pragmatic Modules
-                 Standard Modules
-                 Diagnostic Modules
+Larry Wall started the Apocalypse series as a systematic way of
+answering the RFCs (Request For Comments) that started the design
+process for Perl 6.  Each Apocalypse corresponds to a chapter in the
+book _Programming Perl_, 3rd edition, and addresses the features
+relating to that chapter in the book that are likely to change.
+
+Larry addresses each relevant RFC, and gives reasons why he accepted
+or rejected various pieces of it.  But each Apocalypse also goes
+beyond a simple "yes" and "no" response to attack the roots of the
+problems identified in the RFCs.
+
+=head2 Exegeses (outdated)
+
+The document codes C<E01 - E33> refer to the Perl 6 Exegeses.
+
+Damian Conway's Exegeses are extensions of each Apocalypse.  Each
+Exegesis is built around a practical code example that applies and
+explains the new ideas.
 
 =head1 METHODS
 
@@ -234,6 +265,8 @@ Perl6::Bible provides a class method to get the raw text of a document:
 * Brian Ingerson <ingy@cpan.org>
 
 * Sam Vilain <samv@cpan.org>
+
+* Audrey Tang <autrijus@cpan.org>
 
 =head1 COPYRIGHT
 

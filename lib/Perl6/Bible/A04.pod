@@ -1,6 +1,6 @@
+=encoding utf-8
 
-
-=head1 TITLE
+=head1 NAME
 
 Apocalypse 4: Syntax
 
@@ -278,7 +278,7 @@ from term C<BEGIN>.  Also, we can't really syntactically distinguish
 the closures for constructs like C<sort> or C<map> if they are subject
 to multiple dispatch, since we wouldn't know the signature.  However,
 you never have to end such a block on a line by itself, since you can
-always put the optional comma, or even feed the list to the operator
+always put a comma, or even feed the list to the operator
 using the C<< <== >> pipe operator.]
 
 Anyway, back to switch statements. Damian's RFC proposes various
@@ -1434,7 +1434,7 @@ Actually, by the "any" rules of the C<=~> table, we can just say:
     }
 
 [Update: Lists must be explicitly made into junctions, so now we'd
-write that as C<any(@$!) ~~ Foo>.]
+write that as C<any($![]) ~~ Foo>.]
 
 The RFC proposes the following syntax for finalization:
 
@@ -2315,7 +2315,7 @@ and so on forever (or at least for a very long time):
     }
 
 [Update: This has been simplified.  The arguments to a closure are
-always separated by commas, and you can use the C<zip> function to
+always separated by commas, and you can use the C<each> function to
 interleave two or more arrays on the left.]
 
 =head2 RFC 019: Rename the local operator

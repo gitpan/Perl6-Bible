@@ -1,6 +1,6 @@
+=encoding utf-8
 
-
-=head1 TITLE
+=head1 NAME
 
 Apocalypse 5: Pattern Matching
 
@@ -703,10 +703,13 @@ over grammar rules.]
     [\r\n\ck\p{Zl}\p{Zp}] \v                    # vertical whitespace
     [a-z]                 <[a-z]>               # equivalently non-international
                           <alpha>               # more international
-    [[:alpha:][:digit:]   <<alpha><digit>>      # POSIX classes are built-in rules
+    [[:alpha:][:digit:]]  <<alpha><digit>>      # POSIX classes are built-in rules
 
 [Update: That must now be written C<<< <+<alpha>+<digit>> >>>, or it
 will be mistaken for C<< «alpha><digit» >>, which doesn't work too well.]
+
+[Update: Actually, that's now written C<< <+alpha+digit> >>, avoiding
+the mistaken impression entirely.]
 
     {n,m}                 <n,m>                 # assert repeat count
 
@@ -1530,7 +1533,7 @@ particularly when you want to combine them:
     [a-z]               <[a-z]>
     [[:alpha:]]         <alpha>
     [^[:alpha:]]        <-alpha>
-    [[:alpha:][:digit]] <<alpha><digit>>
+    [[:alpha:][:digit:]] <<alpha><digit>>
 
 The outer C<< <...> >> also naturally serves as a container for any
 extra syntax we decide to come up with for character set manipulation:

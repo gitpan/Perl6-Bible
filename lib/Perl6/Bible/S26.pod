@@ -1,6 +1,6 @@
-=head1 TITLE
+=head1 NAME
 
- [DRAFT] Synopsis 26 - Perl Documentation
+Synopsis 26 - Perl Documentation [DRAFT]
 
 
 =head1 AUTHOR

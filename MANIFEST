@@ -46,3 +46,4 @@ p6bible
 README
 t/compile.t
 t/getraw.t
+SIGNATURE                                Public-key signature (added by MakeMaker)
