@@ -14,21 +14,21 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 ace95ee09685e6d5583fe3a64100d76891a547a5 Changes
+SHA1 4106e7f7f0eda1d0c12221d74e8687707926057a Changes
 SHA1 34c3adda9fedd5638ee78afb96434a8265395bb3 MANIFEST
-SHA1 7084c1b6a14b72b55714fa56c86c7bda37e43daa META.yml
-SHA1 15cf85cafd143a3fd65bd18c740417deee81c43f Makefile.PL
+SHA1 7720a4277b482985c99ed4c57f207f7ff9792618 META.yml
+SHA1 4672d7ca3838d8ccb736e045ade3e8fa611c1b02 Makefile.PL
 SHA1 c0338ecd0e58e7735ce69e26c2362027707d7cfe README
-SHA1 12fe6b0e6e56f6e96e3d7ba406b7a8e7ab398fde inc/Module/Install.pm
-SHA1 489ba7fc8de4849958379bf4c91419d0c8576a85 inc/Module/Install/Base.pm
+SHA1 3b03a784e1052de90758fabef64a94c9f12eaddc inc/Module/Install.pm
+SHA1 9ee1903ce87a8b3cdd4121de15272dc25e7bc807 inc/Module/Install/Base.pm
 SHA1 1ae0b64895f73745680a2c2950053f64ccc116cc inc/Module/Install/Can.pm
 SHA1 d097dedadac0edcafbee3a14c262e24089f5795e inc/Module/Install/Fetch.pm
-SHA1 d631702310522bb4a5fbe1cef5bb937891681a48 inc/Module/Install/Makefile.pm
-SHA1 942fde153df92dd73759011960034d441fdd983d inc/Module/Install/Metadata.pm
+SHA1 9dc6e65553c7e70f57287ecbf2e072611bf2b27f inc/Module/Install/Makefile.pm
+SHA1 88978dc470082a5c88449f3f3d6d2b68e97f0ad7 inc/Module/Install/Metadata.pm
 SHA1 8c7eb61d081ec7783836d72ad81c0536df65dec0 inc/Module/Install/Scripts.pm
 SHA1 8ee248d67d4c61a4f01e6a96c41afbd93be4c9ef inc/Module/Install/Win32.pm
 SHA1 3c099dd7fb73a49bcc489b152c3ca3c7a1b36427 inc/Module/Install/WriteAll.pm
-SHA1 8f36cbdbc2afa4447c8912cfe262e03eecf1be9f lib/Perl6/Bible.pm
+SHA1 c52924df176555d32eeb61a43911e8e23afeaca7 lib/Perl6/Bible.pm
 SHA1 bdef995fdbde69ff80006d9956b576eb24f52771 lib/Perl6/Bible/A01.pod
 SHA1 b68c1d90c9a1e0b89d81fc0513dcd90a6a36e0ff lib/Perl6/Bible/A02.pod
 SHA1 58d66765d1b3e1f3be34d507216db119415741d9 lib/Perl6/Bible/A03.pod
@@ -54,7 +54,7 @@ SHA1 3d977a83f28c0d6ab6926dcef1edea2674b924fe lib/Perl6/Bible/S10.pod
 SHA1 8a3e5c2f7329442a07cb1a21a382bde9e126af99 lib/Perl6/Bible/S11.pod
 SHA1 43b5340418e328f516fa27cefbb6057fdf025440 lib/Perl6/Bible/S12.pod
 SHA1 e0d6ea285d896364e142cee7556b4ab89765b29e lib/Perl6/Bible/S13.pod
-SHA1 79c272f6c7b9f27412c823dcf2575257f9563ec6 lib/Perl6/Bible/S17.pod
+SHA1 677518c55d9fa6288fb8048b5f2467ef55444857 lib/Perl6/Bible/S17.pod
 SHA1 609c2108b2dd4f2199d2a6acf61939a229f3153a lib/Perl6/Bible/S22.pod
 SHA1 c61294458fe8d3d60165b7a0b2ddb2e3531bf745 lib/Perl6/Bible/S26.pod
 SHA1 dcd23a9897059283ea433e5b6d52c6eb5a41f9be lib/Perl6/Bible/S27.pod
@@ -66,7 +66,7 @@ SHA1 fc53163bdf4475b964b549814931149747d80531 t/getraw.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2 (FreeBSD)
 
-iD8DBQFDqr0OtLPdNzw1AaARAooJAKCFnQLKzR4BN4a/SlRBe0rFr/dIJwCeMzTy
-94rEo5Qg849ghWD4bpJb9lc=
-=mkor
+iD8DBQFDsXhRtLPdNzw1AaARAiW6AKCvOkuqvdtw17Ex2yMhRBPYZ02Q1wCfT4Fa
+HU4rZ7T65fjza6K7A+j7+Co=
+=kuFV
 -----END PGP SIGNATURE-----

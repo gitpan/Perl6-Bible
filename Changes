@@ -1,4 +1,9 @@
 ---
+version: 0.27
+date: Wed Dec 28 01:20:15 CST 2005
+changes:
+- Fix the TITLE line in S17 so it displays like NAME.
+---
 version: 0.26
 date:   Wed Dec 22 22:47:10 CST 2005
 changes:
