@@ -1,8 +1,8 @@
 =encoding utf8
 
-=head1 NAME
+=head1 TITLE
 
-Synopsis_03 - Summary of Perl 6 Operators
+Synopsis 3: Summary of Perl 6 Operators
 
 =head1 AUTHOR
 
@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 23 Nov 2005
+  Last Modified: 25 Feb 2006
   Number: 3
-  Version: 10
+  Version: 13
 
 =head1 Operator renaming
 
@@ -64,9 +64,10 @@ instead of a list of refs.  (According to the previous item, in scalar
 context the backslash is redundant, but is good documentation anyway.)
 
 =item * The old scalar C<..> flipflop operator is now done with
-C<till> operator.  (C<..> now always produces a Range object
-even in scalar context.)  The C<till> operator may take a caret on
-either end to exclude either the beginning or ending.
+C<ff> operator.  (C<..> now always produces a Range object
+even in scalar context.)  The C<ff> operator may take a caret on
+either end to exclude either the beginning or ending.  There is
+also a corresponding C<fff> operator with Perl 5's C<...> semantics.
 
 =back
 
@@ -102,11 +103,14 @@ Its precedence is now equivalent to assignment, and it is right associative.
 
 =item * C<^^> is the high-precedence version of C<xor>.
 
-=item * C<=~> becomes the "smart match" operator C<~~>, with a whole new
-set of semantics.  Anywhere you used C<=~> before you now use C<~~>, but 
-C<~~> is much more general now.  See L<Synopsis 4> for details.
+=item * C<=~> becomes the "smart match" operator C<~~>, with a whole new set
+of semantics.  Anywhere you used C<=~> before you now use C<~~>, but C<~~> is
+much more general now.  See L<Synopsis 4> for details.  (To catch "brainos",
+the Perl 6 parser defines an C<< infix:<=~> >> macro which always fails at
+compile time with a message directing the user either to use C<~~> or C<~=> instead,
+or to put a space between if they really wanted to assign a stringified value.)
 
-=item * Unary C<.> calls its single argument (which must be a method, or an
+=item * Unary C<.> calls its single argument (which must be a method, or a
 dereferencer for a hash or array) on C<$_>.
 
 =item * The C<..> range operator has variants with C<^> on either
@@ -114,10 +118,18 @@ end to indicate exclusion of that endpoint from the range.  It always
 produces a Range object.  Range objects are lazy iterators, and can
 be interrogated for their current C<.min> and C<.max> values (which
 change as they are iterated).  Ranges are not autoreversing: C<2..1>
-is always a null range, as is C<1^..^2>.  However, smart matching
-against a Range object smartmatches the endpoints in the domain of
-the object being matched, so C<< 1.5 ~~ 1^..^2 >> is true.
-(But C<< 2.1 ~~ 1..2 >> is false.)
+is always a null range, as is C<1^..^2>.  To reverse a range use:
+
+    2..1:by(-1)
+    reverse 1..2
+
+(The C<reverse> is preferred because it works for alphabetic ranges
+as well.)
+
+Because C<Range> objects are lazy, they do not automatically generate
+a list.  So smart matching against a Range object smartmatches the
+endpoints in the domain of the object being matched, so C<< 1.5 ~~
+1^..^2 >> is true.  (But C<< 2.1 ~~ 1..2 >> is false.)
 
 =item * The unary C<^> operator generates a range from C<0> up to
 one less than its argument.  so C<^4> is short for C<0..^4> or C<0..3>.
@@ -129,13 +141,13 @@ one less than its argument.  so C<^4> is short for C<0..^4> or C<0..3>.
 
 =item * However, C<...> as a term is the "yada, yada, yada" operator,
 which is used as the body in function prototypes.  It complains
-bitterly if it is ever executed.  Actually, it calls C<fail>.  Variant
+bitterly (by calling C<fail>) if it is ever executed.  Variant
 C<???> calls C<warn>, and C<!!!> calls C<die>.
 
 =item * In addition, to the ordinary C<.> method invocation, there are
 variants C<.*>, C<.?>, and C<.+> to control how multiple parent methods
 of the same name are handled.  The C<.=> operator does inplace modification
-of the object on the left.
+of the object on the left.  The C<.^> operator calls a class metamethod.
 
 =item * Unary C<=> reads lines from a filehandle or filename, or in general
 iterates an iterator.
@@ -160,9 +172,9 @@ If one argument is insufficiently dimensioned, Perl "upgrades" it:
 When using a unary operator, only put it on the operand's side:
 
      @negatives = -« @positives;
-     
+
      @positions »++;            # Increment all positions
-     
+
      @objects ».run();
      ("f","oo","bar")».chars;   # (1,2,3)
 
@@ -251,7 +263,7 @@ Perl 6 supports the natural extension to the comparison operators,
 allowing multiple operands.
 
      if 3 < $roll <= 6              { print "High roll" }
-     
+
      if 1 <= $roll1 == $roll2 <= 6  { print "Doubles!" }
 
 Note: any operator beginning with C<< < >> must have whitespace
@@ -312,7 +324,7 @@ explicitly flatten it in any of these ways:
     push @foo, @$bar;
     push @foo, $bar[];
 
-(The C<*> in list context doesn't change the call semantics as is
+(The C<*> in list context doesn't change the call semantics as it
 does in scalar context.)  Note that these three forms also allow you
 to specify list context on assignment:
 
@@ -428,7 +440,7 @@ operator:
 
 =head1 Precedence
 
-Perl 6 has 22 precedence levels (fewer than Perl 5):
+Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 
     terms		42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
     method postfix	. .+ .? .* .() .[] .{} .«» .=
@@ -440,7 +452,7 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     junctive and (all)	&
     junctive or (any)	| ^
     named unary		rand sleep abs etc.
-    nonchaining binary	but does cmp <=> .. ^.. ..^ ^..^ till
+    nonchaining binary	but does cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff etc.
     chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
     tight and		&&
     tight or		|| ^^ //

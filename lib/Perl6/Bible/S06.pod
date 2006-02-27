@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 21 Nov 2005
+  Last Modified: 24 Feb 2006
   Number: 6
-  Version: 12
+  Version: 18
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -49,19 +49,35 @@ as they are parsed (i.e. at compile-time). Macros may return another
 source code string or a parse-tree.
 
 
-=head2 Standard subroutines
+=head2 Named subroutines
 
 The general syntax for named subroutines is any of:
 
-     my RETTYPE sub NAME ( PARAMS ) TRAITS {...}
-    our RETTYPE sub NAME ( PARAMS ) TRAITS {...}
-                sub NAME ( PARAMS ) TRAITS {...}
+     my RETTYPE sub NAME ( PARAMS ) TRAITS {...}    # lexical only
+    our RETTYPE sub NAME ( PARAMS ) TRAITS {...}    # also package-scoped
+                sub NAME ( PARAMS ) TRAITS {...}    # same as "our"
+
+The return type may also be put inside the parentheses:
+
+    sub NAME (PARAMS --> RETTYPE) {...}
+
+Unlike in Perl 5, named subroutines are considered expressions,
+so this is valid Perl 6:
+
+    my @subs = (sub foo { ... }, sub bar { ... });
+
+=head2 Anonymous subroutines
 
 The general syntax for anonymous subroutines is:
 
     sub ( PARAMS ) TRAITS {...}
 
-"Trait" is the name for a compile-time (C<is>) property.
+But one can also use a scope modifier to introduce the return type first:
+
+     my RETTYPE sub ( PARAMS ) TRAITS {...}
+    our RETTYPE sub ( PARAMS ) TRAITS {...} # means the same as "my" here
+
+B<Trait> is the name for a compile-time (C<is>) property.
 See L<"Traits and Properties">
 
 
@@ -175,7 +191,7 @@ An lvalue subroutine may return a variable:
 
     my $lastval;
     sub lastval () is rw { return $lastval }
- 
+
 or the result of some nested call to an lvalue subroutine:
 
     sub prevval () is rw { return lastval() }
@@ -356,13 +372,16 @@ are short for
     doit :a(%hash<a>),1,2,3;
     doit :b(%hash{'b'}),1,2,3;
 
-To pass pairs out of hash without their being interpreted as named
-parameters, use
+Ordinary hash notation will just pass the value of the hash entry as a
+positional argument regardless of whether it is a pair or not.
+To pass both key and value out of hash as a positional pair, use C<:p>.
 
     doit %hash<a>:p,1,2,3;
     doit %hash{'b'}:p,1,2,3;
 
-instead.
+instead..  (The C<:p> stands for "pairs", not "positional"--the
+C<:p> adverb may be placed on any hash reference to make it mean
+"pairs" instead of "values".)
 
 Pairs are recognized syntactically at the call level and mystically
 transformed into special C<Named> objects that may be bound to
@@ -396,7 +415,7 @@ will then think you said:
 and treat :a<b> as a named argument to print, which is not what you want.
 
 In any event, the named parameters need to be kept in the list until
-bound.  an implementation that pulls named parameters out of the list
+bound.  An implementation that pulls named parameters out of the list
 into a hash prematurely will lose the ordering of the push above,
 for instance.
 
@@ -512,6 +531,10 @@ an undefined value if they have no default.  (A supplied argument that is
 undefined is not considered to be missing, and hence does not trigger
 the default.  Use C<//=> within the body for that.)
 
+(Conjectural: Within the body you may also use C<exists> on the
+parameter name to determine whether it was passed.  Maybe this will have to
+be restricted to the C<?> form, unless we're willing to admit that a parameter
+could be simultaneously defined and non-existant.)
 
 =head2 Named parameters
 
@@ -611,7 +634,7 @@ You can't bind to the name of a slurpy parameter: the name is just there
 so you can refer to it within the body. 
 
     sub foo(*%flag, *@data) {...}
-    
+
     foo(:flag{ a => 1 }, :data[ 1, 2, 3 ]);
         # %flag has elements (flag => (a => 1)) and (data => [1,2,3])
         # @data has nothing
@@ -837,11 +860,11 @@ produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
 use C<each()> instead:
 
     (0..2; 'a'..'c') ==> my @;tmp;
-    for @;tmp.each { say }
+    for @;tmp.map { say }
 
 and then you just get 0,'a',1,'b',2,'c'.  This is good for
 
-    for @;tmp.each -> $i, $a { say "$i: $a" }
+    for @;tmp.map -> $i, $a { say "$i: $a" }
 
 In list context the C<@;foo> notation is really a shorthand for C<[;](@;foo)>.
 
@@ -891,11 +914,11 @@ which is the same as
 Note that the each method is also sensitive to multislicing, so you
 could also just write that as:
 
-    (@foo; 0...).each: -> $x, $i { ...}
+    (@foo; 0...).map: -> $x, $i { ...}
 
 Also note that these come out to identical for ordinary arrays:
 
-    @foo.each
+    @foo.map
     @foo.cat
 
 =head2 Closure parameters
@@ -1004,9 +1027,9 @@ as named parameters within curlies.  Instead of saying:
         my $addr := delete %guest_data<addr>;
         ...
     }
-                                                                                
+
 you can get the same effect with:
-                                                                                
+
     sub register ({:$name, :$addr, *%guest_data}, $room_num) {
         ...
     }
@@ -1229,7 +1252,7 @@ A value type on an array or hash specifies the type stored by each element:
 
     my Rat %ship;   # the value of each entry stores a Rat
 
-The key type of a hash may be specified as a shape trait--see S9.
+The key type of a hash may be specified as a shape trait--see S09.
 
 =head2 Implementation types
 
@@ -1294,7 +1317,7 @@ specifiable as if it were an "or" junction:
 
     my Int|Str $error = $val;              # can assign if $val~~Int or $val~~Str
 
-Fancier type constrains may be expressed through a subtype:
+Fancier type constraints may be expressed through a subtype:
 
     subset Shinola of Any where {.does(DessertWax) and .does(FloorTopping)};
     if $shimmer ~~ Shinola {...}  # $shimmer must do both interfaces
@@ -1320,8 +1343,8 @@ Parameters may be given types, just like any other variable:
 Within a declaration, a class variable (either by itself or
 following an existing type name) declares a new type name and takes
 its parametric value from the actual type of the parameter it is
-associated with.  It declares the new type name in whatever scope
-the surrounding declaration is associated lexical scope.
+associated with.  It declares the new type name in the same scope
+as the associated declaration.
 
     sub max (Num ::X @array ) {
 	push @array, X.new();
@@ -1346,8 +1369,8 @@ after the name:
     my sub hat returns Rabbit {...}
 
 If a subroutine is not explicitly scoped, it belongs to the current
-namespace (module, class, grammar, or package). Any return type must go
-after the name:
+namespace (module, class, grammar, or package), as if it's scoped with
+the C<our> scope modifier. Any return type must go after the name:
 
     sub lay returns Egg {...}
 
@@ -1356,17 +1379,20 @@ keyword:
 
     $lay = sub returns Egg {...};
 
-unless you use the "anonymous declarator" (C<a>/C<an>):
+but you can use a scope modifier to introduce a return type:
 
-    $lay = an Egg sub {...};
-    $hat = a Rabbit sub {...};
+    $lay = my Egg sub {...};
+    $hat = my Rabbit sub {...};
+
+Because they are anonymous, you can change the C<my> modifier to C<our>
+without affecting the meaning.
 
 The return type may also be specified after a C<< --> >> token within the
 signature.  This doesn't mean exactly the same thing as C<returns>.  The
 arrow form is an "official" return type, and may be used to do type
 inferencing outside the sub.  The C<returns> form only makes the return
 type available to the internals of the sub so that the C<return> statement
-can know its context, but outside the sub it just we don't know anything
+can know its context, but outside the sub we don't know anything
 about the return value, as if no return type had been declared.  The prefix
 form actually corresponds to the C<< --> >> semantics rather than the
 C<returns> semantics, so the return type of
@@ -1417,7 +1443,7 @@ The C<but I<NAME> (I<DATA>)> syntax specifies run-time properties on values:
         return 0 but true;
     }
 
-Properties are predeclared as roles and implemented as mixins--see A12.
+Properties are predeclared as roles and implemented as mixins--see S12.
 
 =head2 Subroutine traits
 
@@ -1533,7 +1559,7 @@ exception when you try to modify them.
 
 =item C<is copy>
 
-Specifies that the parameter receives a distinct, read-writeable copy of the
+Specifies that the parameter receives a distinct, read-writable copy of the
 original argument. This is commonly known as "pass-by-value".
 
     sub reprint ($text, $count is copy) {
@@ -1804,6 +1830,137 @@ of one or more of its invocants:
     &woof ::= &bark:(Dog).assuming :pitch<low>;
     &pine ::= &bark:(Tree).assuming :pitch<yes>;
 
+=head2 Macros
+
+Macros are functions or operators that are called by the compiler as
+soon as their arguments are parsed (if not sooner).  The syntactic
+effect of a macro declaration or importation is always lexically
+scoped, even if the name of the macro is visible elsewhere.  As with
+ordinary operators, macros may be classified by their grammatical
+category.  For a given grammatical category, a default parsing rule or
+set of rules is used, but those rules that have not yet been "used"
+by the time the macro keyword or token is seen can be replaced by
+use of "is parsed" trait.  (This means, for instance, that an infix
+operator can change the parse rules for its right operand but not
+its left operand.)
+
+In the absence of a signature to the contrary, a macro is called as
+if it were a method on the current match object returned from the
+grammar rule being reduced; that is, all the current parse information
+is available by treating C<self> as if it were a C<$/> object.
+[Conjecture: alternate representations may be available if arguments
+are declared with particular AST types.]
+
+Macros may return either a string to be reparsed, or a syntax tree
+that needs no further parsing.  The textual form is handy, but the
+syntax tree form is generally preferred because it allows the parser
+and debugger to give better error messages.  Textual substitution
+on the other hand tends to yield error messages that are opaque to
+the user.  Syntax trees are also better in general because they are
+reversible, so things like syntax highlighters can get back to the
+original language and know which parts of the derived program come
+from which parts of the user's view of the program.
+
+In aid of returning syntax tree, Perl provides a "quasiquoting"
+mechanism using the quote C<q:code>, followed by a block intended to
+represent an AST:
+
+    return q:code { say "foo" };
+
+Modifiers to the C<:code> adverb can modify the operation:
+
+    :ast(MyAst)		# Default :ast(AST)
+    :lang(Ruby)		# Default :lang($?PARSER)
+    :unquote<[: :]>	# Default "triple rule"
+
+Within a quasiquote, variable and function names resolve according
+to the lexical scope of the macro definition.  Unrecognized symbols raise
+errors when the macro is being compiled, I<not> when it's being used.
+
+To make a symbol resolve to the (partially compiled) scope of the macro
+call, use the C<COMPILING::> pseudo-package:
+
+    macro moose () { q:code { $COMPILING::x } }
+
+    moose(); # macro-call-time error
+    my $x;
+    moose(); # resolves to 'my $x'
+
+If you want to mention symbols from the scope of the macro call, use the
+import syntax as modifiers to C<:code>:
+
+    :COMPILING<$x>      # $x always refers to $x in caller's scope
+    :COMPILING          # All free variables fallback to caller's scope
+
+If those symbols do not exist in the scope of the compiling scope, a
+compile-time exception is thrown at macro call time.
+
+Similarly, in the macro body you may either refer to the C<$x> declared in the
+scope of the macro call as C<$COMPILING::x>, or bind to them explicitly:
+
+    my $x := $COMPILING::x;
+
+You may also use an import list to bind multiple symbols into the
+macro's lexical scope:
+
+    require COMPILING <$x $y $z>;
+
+Note that you need to use the run-time C<:=> and C<require> forms, not C<::=>
+and C<use>, because the macro caller's compile-time is the macro's runtime.
+
+=head2 Splicing
+
+Bare AST variables (such as the arguments to the macro) may not be
+spliced directly into a quasiquote because they would be taken as
+normal bindings.  Likewise, program text strings to be inserted need
+to be specially marked or they will be bound normally.  To insert a
+"unquoted" expression of either type within a quasiquote, use the
+quasiquote delimiter tripled, typically a bracketing quote of some sort:
+
+    return q:code { say $a + {{{ $ast }}} }
+    return q:code [ say $a + [[[ $ast ]]] ]
+    return q:code < say $a + <<< $ast >>> >
+    return q:code ( say $a + ((( $ast ))) )
+
+(Note to implementors: this must not be implemented by finding
+the final closing delimiter and preprocessing, or we'll violate our
+one-pass parsing rule.  Perl 6 parsing rules are parameterized to know
+their closing delimiter, so adding the opening delimiter should not
+be a hardship.  Alternately the opening delimiter can be deduced from
+the closing delimiter.  Writing a rule that looks for three opening
+delimiters in a row should not be a problem.  It has to be a special
+grammar rule, though, not a fixed token, since we need to be able to
+nest code blocks with different delimiters.  Likewise when parsing the
+inner expression, the inner parser rule is parameterized to know that
+C<}}}> or whatever is its closing delimiter.)
+
+The delimiters don't have to be bracketing quotes, but the following
+is probably to be construed as Bad Style:
+
+    return q:code / say $a + /// $ast /// /
+
+Dequoted expressions are inserted appropriately depending on the
+type of the variable, which may be either a syntax tree or a string.
+(Again, syntax tree is preferred.)  The case is similar to that of a
+macro called from within the quasiquote, insofar as reparsing only
+happens with the string version of interpolation, except that such
+a reparse happens at macro call time rather than macro definition
+time, so its result cannot change the parser's expectations about
+what follows the interpolated variable.
+
+Hence, while the quasiquote itself is being parsed, the syntactic
+interpolation of a unquoted expression into the quasiquote always
+results in the expectation of an operator following the variable.
+(You must use a call to a submacro if you want to expect something
+else.)  Of course, the macro definition as a whole can expect
+whatever it likes afterwards, according to its syntactic category.
+(Generally, a term expects a following postfix or infix operator,
+and an operator expects a following term or prefix operator.)
+
+A quasiquote is not a block (even if the delimiters are curlies),
+so any declaration of a variable is taken to be part of the block
+surrounding the macro call location.  Add your own {...} if you want
+a block to surround your declarations.
 
 =head1 Other matters
 
@@ -1859,7 +2016,7 @@ the assignment:
     (key => $var) = "value";
 
 When binding pairs, names can be used to "match up" lvalues and rvalues,
-provided you write hte left side as a signature using C<:(...)> notation:
+provided you write the left side as a signature using C<:(...)> notation:
 
     :(:who($name), :why($reason)) := (why => $because, who => "me");
 

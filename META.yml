@@ -1,13 +1,13 @@
 abstract: Perl 6 Design Documentations
 author: Brian Ingerson. All rights reserved.
 distribution_type: module
-generated_by: Module::Install version 0.50
+generated_by: Module::Install version 0.57
 license: perl
 name: Perl6-Bible
-no_index:
-  directory:
+no_index: 
+  directory: 
     - inc
     - t
-requires:
+requires: 
   perl: 5.000
-version: 0.27
+version: 0.28

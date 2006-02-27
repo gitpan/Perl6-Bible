@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 29 Aug 2005
+  Last Modified: 25 Feb 2006
   Number: 4
-  Version: 6
+  Version: 10
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -41,13 +41,13 @@ are three ways to declare formal parameters to a closure.
 
 A bare closure without placeholder arguments that uses C<$_>
 (either explicitly or implicitly) is treated as though C<$_> were a
-placeholder argument:
+a formal parameter:
 
-    $func = { print if $_ };
+    $func = { print if $_ };   # Same as: $func = -> $_ { print if $_ };
     $func("printme");
 
 In any case, all formal parameters are the equivalent of C<my> variables
-within the block.  See S6 for more on function parameters.
+within the block.  See S06 for more on function parameters.
 
 Except for such formal parameter declarations, all lexically scoped
 declarations are visible from the point of declaration to the end of
@@ -91,6 +91,33 @@ value will be restored only if the current block exits unsuccessfully.
 (See Definition of Success below for more.)  C<temp> and C<let> temporize
 or hypotheticalize the value or the variable depending on whether you
 do assignment or binding.
+
+=head1 Statement-ending blocks
+
+A line ending with a closing brace "C<}>", followed by nothing but
+whitespace or comments, will terminates statement if an end of statement
+can occur there.  That is, these two statements are equivalent:
+
+    my $x = sub { 3 }
+    my $x = sub { 3 };
+
+End-of-statement cannot occur within a bracketed expression, so
+this still works:
+
+    my $x = [
+        sub { 3 },  # this comma is not optional
+        sub { 3 }   # the statement won't terminate here 
+    ];
+
+Because subroutine declarations are expressions, not statements,
+this is now invalid:
+
+    sub f { 3 } sub g { 3 }     # two terms occur in a row
+
+But these two are valid:
+
+    sub f { 3 }; sub g { 3 };
+    sub f { 3 }; sub g { 3 }    # the trailing semicolon is optional
 
 =head1 Conditional statements
 
@@ -171,24 +198,22 @@ more than one element at a time:
 
     for %hash.kv -> $key, $value { print "$key => $value\n" }
 
-To process two arrays in parallel, use either the C<zip> function:
+To process two arrays in parallel, use the C<each> function:
 
-    for zip(@a;@b) -> $a, $b { print "[$a, $b]\n" }
+    for each(@a;@b) -> $a, $b { print "[$a, $b]\n" }
 
-or the "zipper" operator to interleave them:
+or use the C<zip> function to generate a list of tuples that each can be bound
+to multiple arguments enclosed in square brackets:
 
-    for @a ¥ @b ¥ @c -> $a, $b, $c { print "[$a, $b, $c]\n" }
-
-That's equivalent to
-
-    for zip(@a;@b;@c) -> $a, $b, $c { print "[$a, $b, $c]\n" }
+    for zip(@a;@b) -> [$a, $b] { print "[$a, $b]\n" }
 
 The list is evaluated lazily by default, so instead of using a C<while>
-to read a file a line at a time:
+to read a file a line at a time as you would in Perl 5:
 
-    while my $line = <$*IN> {...}
+    while (my $line = <STDIN>) {...}
 
-you should use a C<for> instead:
+in Perl 6 you should use a C<for> (plus a unary C<=> "iterate the
+iterator" operator) instead:
 
     for =$*IN -> $line {...}
 
@@ -249,7 +274,7 @@ This construct only allows you to prefix a statement.  If you want to
 continue the expression after the statement you must use the curly form.
 
 Since C<do> is defined as going in front of a statement, it follows
-that it can always be followed by a statment label.  This is particularly
+that it can always be followed by a statement label.  This is particularly
 useful for the do-once block, since it is offically a loop and can take
 therefore loop control statements.
 
@@ -369,7 +394,7 @@ with the C<sub>, C<method>, or C<submethod> keywords).  Pointy subs
 and bare closures are transparent to C<return>.  If you pass a reference
 to a closure outside of its official "sub" scope, it is illegal to
 return from it.  You may only leave the closure block itself with C<leave>
-or by falling of the end of it.
+or by falling off the end of it.
 
 To return a value from a pointy sub or bare closure, you either
 just let the block return the value of its final expression, or you can
@@ -399,13 +424,33 @@ scope of that loop, and if that call mentions the outer loop's label,
 then that outer loop is the one that must be controlled. (This search
 of lexical scopes is limited to the current "official" subroutine.)
 If there is no such lexically scoped outer loop in current subroutine.
-then a fallback search is made outward through the dynamic scopes in
+Then a fallback search is made outward through the dynamic scopes in
 the same way Perl 5 does.  (The difference between Perl 5 and Perl 6
 in this respect arises only because Perl 5 didn't have user-defined
 control structures, hence the sub's lexical scope was I<always>
 the innermost dynamic scope, so the preference to the lexical scope
 in the current sub was implicit.  For Perl 6 we have to make this
 preference explicit.)
+
+=head1 The goto statement
+
+In addition to C<next>, C<last>, and C<redo>, Perl 6 also supports
+C<goto>.  As with ordinary loop controls, the label is searched for
+first lexically within the current subroutine, then dynamically outside
+of it.  Unlike with loop controls, however, scanning a scope includes
+a scan of any lexical scopes included within the current candidate
+scope.  As in Perl 5, it is possible to C<goto> into a lexical scope,
+but only for lexical scopes that require no special initialization
+of parameters.  (Initialization of ordinary variables does not
+count--presumably the presence of a label will prevent code-movement
+optimizations past the label.)  So, for instance, it's always possible
+to goto into the next case of a C<when> or into either the "then"
+or "else" branch of a conditional.  You may not go into a C<given>
+or a C<for>, though, because that would bypass a formal parameter
+binding (not to mention list generation in the case of C<for>).
+(Note: the implicit default binding of an outer $_ to an inner $_
+can be emulated for a bare block, so that doesn't fall under the
+prohibition on bypassing formal binding.)
 
 =head1 Exceptions
 
@@ -415,7 +460,7 @@ Perl 5, these may be "interesting" values of undef that contain
 information about the error.  If you try to use an undefined value,
 that information can then be conveyed to the user.  In essence, undef
 can be an unthrown exception object that just happens to return 0 when
-you ask it whether it's defined or it's true.  Since $!  contains the
+you ask it whether it's defined or it's true.  Since C<$!> contains the
 current error code, saying C<die $!> will turn an unthrown exception
 into a thrown exception.  (A bare C<die> does the same.)
 
@@ -433,7 +478,8 @@ which is then bound to C<$!> and, hopefully, propagated.  The default
 printout for the new exception should include the old exception
 information so that the user can trace back to the original error.
 (Likewise, rethrown exceptions add information about how the exception
-is propagated.)
+is propagated.)  The exception stack within C<$!> is available as
+C<$![]>.
 
 Exception objects are born "unhandled".  The C<$!> object keeps track of
 whether it's currently "handled" or "unhandled".  The exception in C<$!> still
@@ -469,6 +515,10 @@ Those marked with a C<*> can also be used within an expression:
     my $compiletime = BEGIN { localtime };
     our $temphandle = FIRST { maketemp() };
 
+Code that is generated at run time can still fire off C<CHECK>
+and C<INIT> blocks, though of course those blocks can't do things that
+would require travel back in time.
+
 Some of these also have corresponding traits that can be set on variables.
 These have the advantage of passing the variable in question into
 the closure as its topic:
@@ -478,7 +528,7 @@ the closure as its topic:
 
 Apart from C<CATCH> and C<CONTROL>, which can only occur once, most of
 these can occur multiple times within the block.  So they aren't really
-traits, exactly--they actually add themselves onto a list stored in the
+traits, exactly--they add themselves onto a list stored in the
 actual trait.  So if you examine the C<ENTER> trait of a block, you'll
 find that it's really a list of closures rather than a single closure.
 
@@ -606,10 +656,6 @@ declared in the statement syntactic group:
     macro statement_control:<while> ($expr, &whileblock) {...}
     macro statement_control:<BEGIN> (&beginblock) {...}
 
-It's possible the full name of the C<if> operator is now:
-
-    statement_control:<if elsif else>
-
 Statement-level constructs may start only where the parser is expecting
 the start of a statement.  To embed a statement in an expression you
 must use something like C<do {...}> or C<try {...}>.
@@ -632,12 +678,12 @@ get a syntax error when you say:
 
     print if $foo
 
-since C<< prefix:<if>> > would hide C<< statement_modifier:<if> >>.
+since C<< prefix:<if> >> would hide C<< statement_modifier:<if> >>.
 
 =head1 Smart matching
 
 Here is the current table of smart matches (which probably belongs in
-S3).  The list is intended to reflect forms that can be recognized at
+S03).  The list is intended to reflect forms that can be recognized at
 compile time.  If none of these forms is recognized at compile time, it
 falls through to do MMD to C<< infix:<~~>() >>, which presumably
 reflects similar semantics, but can finesse things that aren't exact
@@ -779,7 +825,7 @@ the current snapshot of its world, lexically speaking.
 
 Some closures produce references at compile time that cannot be
 cloned, because they're not attached to any runtime code that can
-actively clone them.  BEGIN, CHECK, INIT, and END blocks probably
+actively clone them.  C<BEGIN>, C<CHECK>, C<INIT>, and C<END> blocks probably
 fall into this category.  Therefore you can't reliably refer to
 run-time variables from them even if they appear to be in scope.
 (The compile-time closure may, in fact, see a some kind of permanent
@@ -788,7 +834,7 @@ likely to be undefined when the closure is run in any case.)  It's
 only safe to refer to package variables and file-scoped lexicals from
 such a routine.
 
-On the other hand, it is required that CATCH and LEAVE blocks be able
+On the other hand, it is required that C<CATCH> and C<LEAVE> blocks be able
 to see transient variables in their current lexical scope, so their
 cloning status depends at least on the cloning status of the block
 they're in.

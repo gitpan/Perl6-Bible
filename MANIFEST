@@ -45,6 +45,6 @@ MANIFEST			This list of files
 META.yml
 p6bible
 README
+SIGNATURE			Public-key signature (added by MakeMaker)
 t/compile.t
 t/getraw.t
-SIGNATURE                                Public-key signature (added by MakeMaker)

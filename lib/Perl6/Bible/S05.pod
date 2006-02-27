@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
    Maintainer: Patrick Michaud <pmichaud@pobox.com>
    Date: 24 Jun 2002
-   Last Modified: 16 Nov 2005
+   Last Modified: 25 Feb 2006
    Number: 5
-   Version: 8
+   Version: 12
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -346,7 +346,7 @@ Because C</x> is default:
 
 =item *
 
-C<#> now always introduces a comment.
+An unescaped C<#> now always introduces a comment.
 
 =item *
 
@@ -464,7 +464,7 @@ how to handle them (more on that below).
 =item *
 
 The default way in which the engine handles a scalar is to match it
-as a C<< <'...'> >> literal (i.e.it does not treat the interpolated string
+as a C<< <'...'> >> literal (i.e. it does not treat the interpolated string
 as a subpattern).  In other words, a Perl 6:
 
      / $var /
@@ -486,7 +486,7 @@ is matched as if it were an alternation of its elements:
      / [ @cmds[0] | @cmds[1] | @cmds[2] | ... ] /
 
 
-As with a scalar variable, each one is matched as a literal.
+As with a scalar variable, each element is matched as a literal.
 
 =item *
 
@@ -613,21 +613,42 @@ lexically scoped.)
 
 =item *
 
-A leading C<(> indicates a code assertion:
+A leading C<?{> or C<!{>indicates a code assertion:
 
-     / (\d**{1..3}) <( $0 < 256 )> /
+     / (\d**{1..3}) <?{ $0 < 256 }> /
+     / (\d**{1..3}) <!{ $0 < 256 }> /
 
 Similar to:
 
      / (\d**{1..3}) { $0 < 256 or fail } /
+     / (\d**{1..3}) { $0 < 256 and fail } /
 
 Unlike closures, code assertions are not guaranteed to be run at the
 canonical time if the optimizer can prove something later can't match.
 So you can sneak in a call to a non-canonical closure that way:
 
-     /^foo .* <( do { say "Got here!" } or 1 )> .* bar$/
+     /^foo .* <?{ do { say "Got here!" } or 1 }> .* bar$/
 
 The C<do> block is unlikely to run unless the string ends with "C<bar>".
+
+=item *
+
+A leading C<(> indicates the start of a result capture:
+
+    / foo <( \d+ )> bar /
+
+is equivalent to:
+
+    / <after foo> \d+ <before bar> /
+
+except that the scan for "foo" can be done in the forward direction,
+while a lookbehind assertion would presumably scan for \d+ and then
+match "foo" backwards.  The use of C<< <(...)> >> affects only the
+meaning of the "result object" and the positions of the beginning and
+ending of the match.  That is, after the match above, C<$()> contains
+only the digits matched, and C<.pos> is pointing to after the digits.
+Other captures (named or numbered) are unaffected and may be accessed
+through C<$/>.
 
 =item *
 
@@ -1041,14 +1062,19 @@ case matching the null string:
 
 =item *
 
-A match always returns a "match object", which is also available as
-(lexical) C<$/> (except within a closure lexically embedded in a rule,
-where C<$/> always refers to the current match, not any submatch done
-within the closure).
+A match always returns a "match object", which is also available
+as C<$/>, which is an environmental lexical declared in the outer
+subroutine that is calling the rule.  (A closure lexically embedded
+in a rule does not redeclare C<$/>, so C<$/> always refers to the
+current match, not any prior submatch done within the closure).
 
 =item *
 
-The match object evaluates differently in different contexts:
+Notionally, a match object contains (among other things) a boolean
+success value, a scalar "result object", an array of ordered submatch
+objects, and a hash of named submatch objects.  To provide convenient
+access to these various values, the match object evaluates differently
+in different contexts:
 
 =over
 
@@ -1063,7 +1089,8 @@ succeed?):
 
 =item *
 
-In string context it evaluates to the entire matched string:
+In string context it evaluates to the stringified value of its
+I<result object>, which is usually the entire matched string:
 
      print %hash{ "{$text ~~ /<?ident>/}" };
      # or equivalently:
@@ -1073,8 +1100,8 @@ But generally you should say C<~$/> if you mean C<~$/>.
 
 =item *
 
-In numeric context it evaluates to the numeric value of the entire matched
-string:
+In numeric context it evaluates to the numeric value of its
+I<result object>, which is usually the entire matched string:
 
      $sum += /\d+/;
      # or equivalently:
@@ -1082,8 +1109,32 @@ string:
 
 =item *
 
-When used as an array, C<$/> pretends to be an array containing
-C<$0>, C<$1>, etc.  Hence
+When called as a closure, a Match object evaluates to its underlying
+result object.  Usually this is just the entire match string, but
+you can override that by calling C<return> inside a rule:
+
+    my $moose = m:{
+        <antler> <body>
+        { return Moose.new( body => $<body>().attach($<antler>()) ) }
+        # match succeeds -- ignore the rest of the rule
+    }.();
+
+C<$()> is a shorthand for C<$/.()> or C<$/()>.  The result object
+may be of any type, not just a string.
+
+You may also capture a subset of the match as the result object using
+the C<< <(...)> >> construct:
+
+    "foo123bar" ~~ / foo <( \d+ )> bar /
+    say $();    # says 123
+
+In this case the result object is always a string when doing string
+matching, and a list of one or more elements when doing array matching.
+
+=item *
+
+When used as an array, a Match object pretends to be an array of all
+its positional captures.  Hence
 
      ($key, $val) = m:w/ (\S+) => (\S+)/;
 
@@ -1105,7 +1156,7 @@ in list context.  Use C<@$/> or C<$/[]> to flatten as an array.
 
 =item *
 
-When used as a hash, C<$/> pretends to be a hash of all the named
+When used as a hash, a Match object pretends to be a hash of all its named
 captures.  The keys do not include any sigils, so if you capture to
 variable C<< @<foo> >> its real name is C<$/{'foo'}> or C<< $/<foo> >>.
 However, you may still refer to it as C<< @<foo> >> anywhere C<$/>
@@ -1162,9 +1213,19 @@ Inside a rule, the C<$/> variable holds the current rule's
 incomplete C<Match> object (which can be modified via the internal C<$/>.
 For example:
 
-     $str ~~ / foo                # Match 'foo'
+    $str ~~ / foo                # Match 'foo'
                { $/ = 'bar' }     # But pretend we matched 'bar'
              /;
+    say $/;                       # says 'bar'
+
+This is slightly dangerous, insofar as you might return something that
+does not behave like a C<Match> object to some context that requires
+one.  Fortunately, you normally just want to return a result object instead:
+
+    $str ~~ / foo                 # Match 'foo'
+               { return 'bar' }   # But pretend we matched 'bar'
+             /;
+    say $();                      # says 'bar'
 
 =back
 
@@ -1346,7 +1407,7 @@ structure:
       # |   $0         $1        ||      |
       # |  _^_      ___^___      ||      |
       # | |   |    |       |     ||      |
-     m/ [ (\w+) \: (\w+ \h+)* \n ]**{2...} /
+     m/ [ (\w+) \: (\w+ \h*)* \n ]**{2...} /
 
 Non-capturing brackets I<don't> create a separate nested lexical scope,
 so the two subpatterns inside them are actually still in the rule's
@@ -1364,7 +1425,7 @@ parentheses. For example:
 
                #   $0--     $1------
                #   |   |    |       |
-     $text ~~ m/ [ (\w+) \: (\w+ \h+)* \n ]**{2...} /;
+     $text ~~ m/ [ (\w+) \: (\w+ \h*)* \n ]**{2...} /;
 
      # Because they're in a quantified non-capturing block...
      # $0 contains the equivalent of:
@@ -1394,7 +1455,7 @@ of the inner parens for I<every> iteration (as described above). That is:
                # |                        |
                # | $0[0]    $0[1]---      |
                # | |   |    |       |     |
-     $text ~~ m/ ( (\w+) \: (\w+ \h+)* \n )**{2...} /;
+     $text ~~ m/ ( (\w+) \: (\w+ \h*)* \n )**{2...} /;
 
      # Because it's in a quantified capturing block,
      # $0 contains the equivalent of:
@@ -1534,9 +1595,9 @@ Note that it makes no difference whether a subrule is angle-bracketted (C<<
 
 =item *
 
-If a subrule appears two (or more) times in the same lexical scope
-(i.e. twice within the same subpattern and alternation), or if the
-subrule is quantified anywhere within the entire rule, then its
+If a subrule appears two (or more) times in any branch of a lexical
+scope (i.e. twice within the same subpattern and alternation), or if the
+subrule is quantified anywhere within a given scope, then its
 corresponding hash entry is always assigned a reference to an array of
 C<Match> objects, rather than a single C<Match> object.
 
@@ -1633,12 +1694,12 @@ If a named scalar alias is applied to a set of I<capturing> parens:
 then the outer capturing parens no longer capture into the array of
 C<$/> (like unaliased parens would). Instead the aliased parens capture
 into the hash of C<$/>; specifically into the hash element
-whose key is alias name.
+whose key is the alias name.
 
 =item *
 
 So, in the above example, a successful match sets
-C<< $<key> >> (i.e. C<< $/<key> >>), but I<not> C<$0> (i.e. C<< $/[0] >>).
+C<< $<key> >> (i.e. C<< $/<key> >>), but I<not> C<$0> (i.e. not C<< $/[0] >>).
 
 =item *
 
@@ -1844,7 +1905,7 @@ subpattern, that quantified subrule or subpattern will have returned a
 list of C<Match> objects (as described in L<Quantified subpattern
 captures> and L<Repeated captures of the same subrule>).
 So the corresponding array element or hash entry for the alias will
-contain a referece to an array, instead of a single C<Match> object.
+contain a reference to an array, instead of a single C<Match> object.
 
 =item *
 
@@ -1957,7 +2018,7 @@ subpattern captures within the aliased subpattern. For example:
          # of Match objects, each of which has its own array
          # of two subcaptures...
 
-         for @{$<pairs>} => $pair {
+         for @{$<pairs>} -> $pair {
              say "Key: $pair[0]";
              say "Val: $pair[1]";
          }
@@ -1969,7 +2030,7 @@ subpattern captures within the aliased subpattern. For example:
          # of Match objects, each of which is flattened out of
          # the two subcaptures within the subpattern
 
-         for @{$<pairs>} => $key, $val {
+         for @{$<pairs>} -> $key, $val {
              say "Key: $key";
              say "Val: $val";
          }
@@ -1989,7 +2050,7 @@ repetition of the subrule, all flattened into a single array:
          # Match objects, each of which is the result of the
          # <pair> subrule call...
 
-         for @{$<pairs>} => $pair {
+         for @{$<pairs>} -> $pair {
              say "Key: $pair[0]";
              say "Val: $pair[1]";
          }
@@ -2002,7 +2063,7 @@ repetition of the subrule, all flattened into a single array:
          # nested arrays inside the Match objects returned
          # by each match of the <pair> subrule...
 
-         for @{$<pairs>} => $key, $val {
+         for @{$<pairs>} -> $key, $val {
              say "Key: $key";
              say "Val: $val";
          }
@@ -2097,7 +2158,7 @@ C<Match> object is stored:
 
 Outside the rule, C<%0> is a shortcut for C<%{$0}>:
 
-         for %0 => $pair {
+         for %0 -> $pair {
              say "One:  $pair.key";
              say "Many: { @{$pair.value} }";
          }
@@ -2265,20 +2326,20 @@ Like classes, grammars can inherit:
      grammar Letter {
          rule text     { <greet> <body> <close> }
 
-         rule greet :w { [Hi|Hey|Yo] $to:=(\S+?) , $$}
+         rule greet :w { [Hi|Hey|Yo] $<to>:=(\S+?) , $$}
 
          rule body     { <line>+ }
 
-         rule close :w { Later dude, $from:=(.+) }
+         rule close :w { Later dude, $<from>:=(.+) }
 
          # etc.
      }
 
      grammar FormalLetter is Letter {
 
-         rule greet :w { Dear $to:=(\S+?) , $$}
+         rule greet :w { Dear $<to>:=(\S+?) , $$}
 
-         rule close :w { Yours sincerely, $from:=(.+) }
+         rule close :w { Yours sincerely, $<from>:=(.+) }
 
      }
 
@@ -2413,7 +2474,7 @@ rule matches the boundary between elements.  If the array elements
 are strings, they are concatenated virtually into a single logical
 string.  If the array elements are tokens or other such objects, the
 objects must provide appropriate methods for the kinds of rules to
-match against.  It is an assertion error to match a string matching
+match against.  It is an assertion error to match a string-matching
 assertion against an object that doesn't provide a string view.
 However, pure token objects can be parsed as long as the match rule
 restricts itself to assertions like:
@@ -2430,4 +2491,3 @@ To match against each element of an array, use a hyper operator:
      @array».match($rule)
 
 =back
-
