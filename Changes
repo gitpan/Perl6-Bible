@@ -1,4 +1,9 @@
 ---
+version: 0.29
+date: Wed Feb 27 22:17:30 IST 2006
+changes:
+- Corrected heading of S03, reported by spinclad.
+---
 version: 0.28
 date: Wed Feb 27 15:02:04 IST 2006
 changes:
