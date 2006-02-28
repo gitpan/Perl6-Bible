@@ -1,16 +1,21 @@
+version: 0.29
+date: Tue Feb 28 17:18:59 IST 2006
+changes:
+- 'p6bible -c' now works again.
+- Update to r7898 from upstream documents.
 ---
 version: 0.29
-date: Wed Feb 27 22:17:30 IST 2006
+date: Mon Feb 27 22:17:30 IST 2006
 changes:
 - Corrected heading of S03, reported by spinclad.
 ---
 version: 0.28
-date: Wed Feb 27 15:02:04 IST 2006
+date: Mon Feb 27 15:02:04 IST 2006
 changes:
 - Update to the post-Mt.Arbel-hackathon Synopses.
 ---
 version: 0.27
-date: Wed Dec 28 01:20:15 CST 2005
+date: Sun Dec 26 01:20:15 CST 2005
 changes:
 - Fix the TITLE line in S17 so it displays like NAME.
 ---

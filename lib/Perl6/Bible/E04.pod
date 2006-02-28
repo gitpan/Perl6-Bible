@@ -43,15 +43,15 @@ thing would have many more operators and values, but that's not
 important right now.
 
     class Err::BadData is Exception {...}
-    
+
     module Calc;
-    
+
     my class NoData is Exception {
         method warn(*@args) { die @args }
     }
-    
+
     my %var;
-    
+
     my sub get_data ($data) {
         given $data {
             when /^\d+$/    { return %var{""} = $_ }
@@ -60,14 +60,14 @@ important right now.
             default         { die Err::BadData : msg=>"Don't understand $_" }
         }  
     }
-    
+
     sub calc (str $expr, int $i) {
         our %operator is private //= (
             '*'  => { $^a * $^b },
             '/'  => { $^a / $^b },
             '~'  => { ($^a + $^b) / 2 },
         );
-        
+
         my @stack;
         my $toknum = 1;
         for split /\s+/, $expr -> $token {
@@ -79,10 +79,10 @@ important right now.
                 when '.', ';', '=' {
                     last
                 }
-                
+
                 use fatal;
                 push @stack, get_data($token);
-                
+
                 CATCH {
                     when Err::Reportable     { warn $!; continue }
                     when Err::BadData        { $!.fail(at=>$toknum) }
@@ -90,15 +90,15 @@ important right now.
                     when /division by zero/  { push @stack, Inf }
                 }
             }
-            
+
             NEXT { $toknum++ }
         }
         fail Err::BadData: msg=>"Too many operands" if @stack > 1;
         return %var{'$' _ $i} = pop(@stack) but true;
     }
-    
+
     module main;
-    
+
     for 1..Inf -> $i {
         print "$i> ";
         my $expr = <> err last;  
@@ -253,9 +253,9 @@ of a symbol table, able to be referred to both symbolically and by
 explicit reference:
 
     $class = \Some::Previously::Defined::Class;
-    
+
     # and later
-    
+
     $obj = $class.new();
 
 Note that the back slash is actually optional in that first line, just
@@ -284,9 +284,9 @@ no way to embed a "nested" lexical class:
 
     class Outer;
     # class Outer's namespace
-    
+
     my class Inner;
-    
+
     # From this line to the end of the file 
     # is now in class Inner's namespace
 
@@ -294,11 +294,11 @@ In Perl 6, we avoid this problem by writing:
 
     class Outer;
     # class Outer's namespace
-    
+
     my class Inner {
         # class Inner's namespace
     }
-    
+
     # class Outer's namespace again
 
 In our example, we use this new feature to redefine C<NoData>'s C<warn>
@@ -312,20 +312,20 @@ but then we would have needed to "reopen" the C<Calc> module's
 namespace afterward:
 
     module Calc;                        # Open Calc's namespace
-    
+
     my class NoData is Exception;       # Open NoData's (nested) namespace
     method warn(*@args) { die @args }   # Defined in NoData's namespace
-    
+
     module Calc;                        # Back to Calc's namespace
 
 Being able to "nest" the C<NoData> namespace:
 
     module Calc;                            # Open Calc's namespace
-    
+
     my class NoData is Exception {          # Open NoData's (nested) namespace
         method warn(*@args) { die @args }   # Defined in NoData's namespace
     }
-    
+
     # The rest of module Calc defined here.
 
 is much cleaner.
@@ -336,9 +336,9 @@ even be anonymous:
     $anon_class = class { 
         # definition here
     };
-    
+
     # and later
-    
+
     $obj = $anon_class.new();
 
 which is a handy way of implementing "singleton" objects:
@@ -347,9 +347,9 @@ which is a handy way of implementing "singleton" objects:
                         my $.count = "ID_000001";
                         method next_ID { $.count++ }
                     }.new;
-                    
+
     # and later...
-    
+
     for @objects {
         $_.set_id( $allocator.next_ID );
     }
@@ -676,11 +676,11 @@ This new turbo-charged "smart match" operator will also work on arrays,
 hashes and lists:
 
     if @array =~ $elem {...}        # true if @array contains $elem
-    
+
     if $key =~ %hash {...}          # true if %hash{$key}
-    
+
     if $value =~ (1..10) {...}      # true if $value is in the list
-    
+
     if $value =~ ('a',/\s/,7) {...} # true if $value is eq to 'a'
                                     #   or if $value contains whitespace
                                     #   or if $value is == to 7
@@ -736,7 +736,7 @@ So the way we create such a variable is to declare it as a package
 variable, but with the C<is private> property:
 
     module Wherever;
-    
+
     sub whatever {
         our $count is private;
         $count++;
@@ -806,7 +806,7 @@ differently:
                                                  # time statement is reached.
                                                  # Thereafter may be changed
                                                  # at will within subroutine.
- 
+
     my %operator is constant = todays_ops();     # Re-initialize every time
                                                  # statement is reached.
                                                  # Thereafter constant
@@ -951,7 +951,7 @@ Note that C<map> and C<reduce> can do that too in Perl 6:
 
     # process @xs_and_ys two-at-a-time...
     @list_of_powers = map { $^x ** $^y } @xs_and_ys;
-    
+
     # reduce list three-at-a-time   
     $sum_of_powers  = reduce { $^partial_sum + $^x ** $^y } 0, @xs_and_ys;
 
@@ -985,11 +985,11 @@ onto the stack (since anything else must be an operand):
             my @args = splice @stack, -2;
             push @stack, %operator{$token}(*@args);
         }
-        
+
         when '.', ';', '=' {           # or jump out of loop
             last;
         }
-        
+
         use fatal;
         push @stack, get_data($token);  # or push operand
 
@@ -1229,7 +1229,7 @@ are to be accessed in a set of statements, then we can avoid the
 tedious repetition of the container name:
 
     # initialize from %options...
-    
+
     $name  = %options{name} // %options{default_name};
     $age   = %options{age};
     $limit = max(%options{limit}, %options{rate} * %options{count});
@@ -1238,7 +1238,7 @@ tedious repetition of the container name:
 by making it the topic and using unary dot:
 
     # initialize from %options...
-    
+
     given %options {
         $name  = .{name} // .{default_name};
         $age   = .{age};
@@ -1279,7 +1279,7 @@ For example, instead of having to write:
     while (<>) {
         open $in_file, $_ or die;
         open $out_file, "> $_.out" or die;
-        
+
         # process files here (maybe next'ing out early)
     }
     continue {
@@ -1296,7 +1296,7 @@ we can just write:
             close $in_file  or die;
             close $out_file or die;
         }
-        
+
         # process files here (maybe next'ing out early)
     }
 
@@ -1573,7 +1573,7 @@ What he didn't mention (but which you probably guessed) was that there
 is also the low-precedence version of C<//>. Its name is C<err>:
 
           Operation         High Precedence       Low Precedence
-          
+
          INCLUSIVE OR             ||                     or
          EXCLUSIVE OR             ~~                    xor
           DEFINED OR              //                    err
@@ -1686,15 +1686,15 @@ here's (almost) the same program, written in Perl 5:
 
     package Err::BadData; 
     use base 'Exception';   # which you'd have to write yourself
-    
+
     package NoData;         # not lexical
     use base 'Exception';
     sub warn { die @_ }
-    
+
     package Calc;
-    
+
     my %var;
-    
+
     sub get_data  {
         my $data = shift;
         if ($data =~ /^\d+$/)       { return $var{""} = $data }
@@ -1708,7 +1708,7 @@ here's (almost) the same program, written in Perl 5:
                                           )
                                      }
     }
-    
+
     sub calc {
         my %data = @_;
         my ($i, $expr) = @data{'i', 'expr'};
@@ -1717,7 +1717,7 @@ here's (almost) the same program, written in Perl 5:
             '/'  => sub { $_[0] / $_[1] },
             '~'  => sub { ($_[0] + $_[1]) / 2 },
         );
-        
+
         my @stack;
         my $toknum = 1;
         LOOP: for my $token (split /\s+/, $expr) {
@@ -1728,7 +1728,7 @@ here's (almost) the same program, written in Perl 5:
                     last TRY;
                 }
                 last LOOP if $token eq '.' || $token eq ';' || $token eq '=';
- 
+
                 push @stack, get_data($token);
             } || do {
                 if ($@->isa(Err::Reportable))     { warn $@; }
@@ -1742,9 +1742,9 @@ here's (almost) the same program, written in Perl 5:
         $var{'$'.$i} = $stack[-1] . ' but true';
         return 0+pop(@stack);
     }
-    
+
     package main;
-    
+
     for (my $i=1; 1; $i++) {
         print "$i> ";
         defined( my $expr = <> ) or last;

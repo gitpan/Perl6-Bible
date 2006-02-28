@@ -2230,7 +2230,7 @@ known as C<$0> in Apocalypse 5.  (A macro is not a true method of that
 class, however, because its name is in your scope, not the class's.)
 
 [Update: That's now the C<$/> object.  C<$0> has been "demoted" to being
-the entire matched string.]
+the first submatch.]
 
 Since the first parameter is treated as an invocant, you may either
 declare it or leave it implicit in the actual declaration.  In either
@@ -2239,7 +2239,7 @@ Hence you may refer to it as either C<$_> or C<$0>, even if you don't
 give it a name.
 
 [Update: C<$/> would return the parse tree.  C<$0> would only return
-the text matched.]
+the first submatch.]
 
 Subsequent parameters may be specified, in which case they bind to
 internal values of C<$0> in whatever way makes sense.  Positional
@@ -2272,6 +2272,9 @@ interpolate that parameter's value at that point in the template.
 depending on the declaration of the parameter.)  Any variable not
 referring back to a parameter is left alone, so that your template
 can declare its own lexical variables, or refer to a package variable.
+
+[Update: instead of trying to dwim a bare closure, we now have a "code"
+quasiquote that returns a parse tree.  See S06.]
 
 =item *
 

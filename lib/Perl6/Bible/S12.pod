@@ -509,8 +509,6 @@ variable of a known type:
 
     my Dog $spot .= new(:tail<LONG> :legs<SHORT>);
 
-This works because $spot is initialized at compile-time to C<::Dog>.
-
 =head1 Calling sets of methods
 
 For any method name, there may be some number of candidate methods

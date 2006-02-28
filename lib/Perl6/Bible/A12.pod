@@ -1573,12 +1573,12 @@ method call, so it's now impossible to omit the class specification.
 This makes it easier to inherit constructors. You can still bless
 any reference you could bless in Perl 5, but where you previously
 used a function to do that:
-									    
+
     # Perl 5 code...
     return bless( {attr => "hi"}, $class );
-									    
+
 in Perl 6 you use a method call:
-									    
+
     # Perl 6 code...
     return $class.bless( {attr => "hi"} );
 
@@ -3130,7 +3130,7 @@ not only can you say
     class MyClass is xxx(123) {...}
 
 but you'll also be able to say
-    
+
     if MyClass.meta.xxx == 123 {...}
 
 Since a class can function as a role when it comes to parameter type
@@ -3680,11 +3680,11 @@ bind or assign to the container.
 
     type Str_not2b ::= Str where /^[isnt|arent|amnot|aint]$/;
     type EvenNum   ::= Num where { $^n % 2 == 0 }
-									    
+
     my Str_not2b $hamlet;
     $hamlet = 'isnt';   # Okay because 'isnt' ~~ /^[isnt|arent|amnot|aint]$/
     $hamlet = 'amnt';   # Bzzzzzzzt!   'amnt' !~ /^[isnt|arent|amnot|aint]$/
-									    
+
     my EvenNum $n;
     $n = 2;             # Okay
     $n = -2;            # Okay
@@ -3702,7 +3702,7 @@ It's possible to use an anonymous subtype in a signature:
 	$mesg ~~ s:g/<profanity>/[expletive deleted]/;
 	print $MESG_LOG: $mesg;
     }
-									    
+
     multi sub mesg (Str $mesg) {
 	print $MESG_LOG: $mesg;
     }
@@ -3777,7 +3777,7 @@ question has the right semantics mixed in.  Two builtin enums are:
 
     our bit enum *bool is <False True>;
     our bit enum *taint is <Untainted Tainted>;
-    
+
 .]
 
 =head1 Open vs Closed Classes
@@ -4137,7 +4137,7 @@ any class by the aliasing rule above)):
 	    my Frog $frog .= new;	# MAGIC
 	    return $class.bless( frog => $frog );
 	}
-     
+
 	sub make_noise {
 	    .frog.speak;	# prints "ribbit ribbit"
 	}
@@ -4649,7 +4649,7 @@ the French quotes in Perl 6, you can always use:
 
     %hash<<alice>> = @x;
 
-if you can't figure out how to type C<<< ^K<< or ^K>> >>> in vim.
+if you can't figure out how to type C<< ^K < < >> or C<< ^K > > >> in vim.
 
 On the other hand, if you've got a fully Unicode aware editor, you
 could probably write some macros to use the big double angles from

@@ -886,7 +886,7 @@ pass a numeric field some data that isn't numeric at all:
 
     print form 'Thy score be: {]]]].[[}', 
                               @mixed_data;
-                              
+
 
 Unlike Perl itself, C<form> doesn't autoconvert non-numeric values.
 Instead it marks them with another special string, by filling the field with
@@ -1130,7 +1130,7 @@ or:
          11,23-
         111,235
      12.345,67-
-  
+
 or:
 
           1,0
@@ -1482,7 +1482,7 @@ containing a summary or discussion of the other data. For example,
 we might want to produce recipes of the form:
 
     =================[  Hecate's Broth of Ambition  ]=================
-                                                                      
+
       Preparation time:             Method:                           
          66.6 minutes                  Remove the legs from the       
                                        lizard, the wings from the     
@@ -1800,7 +1800,7 @@ reached. So our output would be something like:
                         greatest playwright the world has  
                         ever known and has always been the 
                         world's most popular author.       
-                                                   
+
     Comments:                                               
       Theories                                               
       abound as to                                           
@@ -1935,7 +1935,7 @@ For example, if we always wanted to break at the exact width of the field
             return ($result, $more);
         }
     }
-    
+
     print form
         :break(&break_width),
         "|{[[[[[}|",
@@ -1970,7 +1970,7 @@ Or we might prefer to break on every single whitespace-separated word:
             return ($found{word}, $more);
         }
     }
-    
+
     print form
         :break(&break_word),
         "|{[[[[[}|",
@@ -2287,7 +2287,7 @@ correctly produces:
     Character       Appears in
     ____________    ____________
     Iago            Othello     
-                              
+
     Henry           Richard III
 
     Claudius        Hamlet      
@@ -2353,12 +2353,12 @@ which then produces the desired result:
     Iago            Othello, The
                     Moor of     
                     Venice      
-                                
+
     Henry,          The Life and
     Earl of         Death of    
     Richmond        King Richard
                     III         
-                                
+
     Claudius,       Hamlet,     
     King of         Prince of   
     Denmark         Denmark     
@@ -2440,7 +2440,7 @@ For example, we might want a standard format for errors in a C<CATCH> block:
         when .core           { warn form "EINTERN",  "Internal error" }
         default              { warn form "EUNKNOWN", "Seek help" }
     }
-    
+
 
 
 =head1 And welcome to the wide fields...
@@ -2605,7 +2605,7 @@ It acts like any other starred field, growing according to the available
 space, except that it will never grow any wider than the widest line
 of the data it is formatting. For example, whereas a regular starred 
 field:
-                   
+
     print form 
          '| {[[{*}[[} |',
             $monologue;
@@ -3225,11 +3225,11 @@ with a normal block field doesn't solve the problem either. In fact we get:
                         greatest playwright the world has  
                         ever known and has always been the 
                         world's most popular author.       
-                                                           
+
     Status:                                                
       Deceased (1564                                       
       -1616)                                               
-                                                           
+
     Comments:                                              
       Theories                                             
       abound as to                                         
@@ -3629,16 +3629,16 @@ which prints:
 
          34  The fair Ophelia! -- Nymph, in thy orisons            34
          35  Be all my sins remembered.                            35
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
+
+
+
+
+
+
+
+
+
+
                                  END OF TEXT
     ^L
 
@@ -3695,7 +3695,7 @@ to the headers or footers or filler lines):
 
         # Remember line numbers from call to call...
         state $linenum = 1;
-    
+
         # Compute range of line numbers
         my @linenums = ($linenum .. $linenum+@lines-1);
 
@@ -3725,7 +3725,7 @@ to the headers or footers or filler lines):
 which produces:
 
     ==========
-                
+
     1      Now is the winter of our discontent /  
     2      Made glorious summer by this sun of    
     3      York; / And all the clouds that lour'd 
@@ -3735,21 +3735,21 @@ which produces:
     7      bruised arms hung up for monuments; /  
     8      Our stern alarums changed to merry     
     9      meetings, / Our dreadful marches to    
-                
+
     ==========
-                
+
     10     delightful measures. Grim-visaged war  
     11     hath smooth'd his wrinkled front; / And
     12     now, instead of mounting barded steeds 
     13     / To fright the souls of fearful       
     14     adversaries, / He capers nimbly in a   
     15     lady's chamber.                        
-                
-                
-                
-                
+
+
+
+
     ==========
-                
+
     16                      To be, or not to be -- that is the question: /
     17                         Whether 'tis nobler in the mind to suffer /
     18                       The slings and arrows of outrageous fortune /
@@ -3759,21 +3759,21 @@ which produces:
     22                      The heartache, and the thousand natural shocks
     23                      / That flesh is heir to. 'Tis a consummation /
     24                        Devoutly to be wished. To die, to sleep -- /
-                
+
     ==========
-                
+
     25                         To sleep -- perchance to dream: ay, there's
     26                          the rub, / For in that sleep of death what
     27                         dreams may come / When we have shuffled off
     28                             this mortal coil, / Must give us pause.
     29                        There's the respect / That makes calamity of
     30                                                       so long life.
-                   
-                   
-                   
-                   
-                   
-                   
+
+
+
+
+
+
                    E<nbsp>
 
 

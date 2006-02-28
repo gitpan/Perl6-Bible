@@ -811,15 +811,15 @@ Here's what the RFC gives as its first example:
     try {
         throw Alarm "a message", tag => "ABC.1234", ... ;
         }
- 
+
     catch Alarm => { ... }
- 
+
     catch Error::DB, Error::IO => { ... }
- 
+
     catch $@ =~ /divide by 0/ => { ... }
- 
+
     catch { ... }
- 
+
     finally { ... }
 
 Here's how I see that being written in Perl 6:
@@ -1690,10 +1690,10 @@ RFC:
 
 =item B<Use C<%@> for Errors from Builtins>
 
-I<RFC 151 proposes a mechanism for consolidating the information
+RFC 151 proposes a mechanism for consolidating the information
 provided by of C<$@>, C<$!>, C<$?>, and C<$^E>. In the opinion of the
 author of RFC 88, merging C<$@> and C<$!> should not be undertaken,
-because C<$@> should I<only> be set if an exception is raised.>
+because C<$@> should I<only> be set if an exception is raised.
 
 =back
 

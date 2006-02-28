@@ -2,7 +2,7 @@ package Perl6::Bible;
 use 5.000;
 use File::Spec;
 
-$Perl6::Bible::VERSION = '0.29';
+$Perl6::Bible::VERSION = '0.30';
 
 sub new {
     my $class = shift;
@@ -135,8 +135,13 @@ sub contents {
       or die "Can't open $path for input";
     my $text = do {local $/; <MOD>};
     close MOD;
-    $text =~ s/^.*=head1 CONTENTS(.*?)=head1.*$/$1/s
-      or die "Can't find contents\n";
+    $text =~ s/
+        ^.*
+        =head2 \s* (?=Contents)
+    //sx or die "Can't find contents\n";
+    $text =~ s/
+        =head1 .*
+    //sx or die "Can't find contents\n";
     $text =~ s/\A\s*\n//;
     $text =~ s/\s*\z/\n/;
     $text =~ s/^ {17}.*\n//mg;
@@ -151,8 +156,8 @@ Perl6::Bible - Perl 6 Design Documentations
 
 =head1 VERSION
 
-This document describes version 0.29 of Perl6::Bible, released
-February 27, 2006.
+This document describes version 0.30 of Perl6::Bible, released
+February 28, 2006.
 
 =head1 SYNOPSIS
 
@@ -171,6 +176,8 @@ in the column indicates the document is currently available. An
 asterisk next to a number means that the document is an unofficial
 draft written by a member of the Perl community but not approved by
 the Perl 6 Design Team.
+
+=head2 Contents
 
   S01  The Ugly, the Bad, and the Good   (A01)
   S02  Bits and Pieces                   (A02) (E02)
