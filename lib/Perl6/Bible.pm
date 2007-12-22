@@ -156,8 +156,8 @@ Perl6::Bible - Perl 6 Design Documentations
 
 =head1 VERSION
 
-This document describes version 0.30 of Perl6::Bible, released
-February 28, 2006.
+This document describes version 0.31 of Perl6::Bible, released
+December 25, 2007.
 
 =head1 SYNOPSIS
 
@@ -207,11 +207,7 @@ the Perl 6 Design Team.
   S26* Perl Documentation
   S27* Perl Culture
   S28* Special Names
-  S29* Functions
-       The Standard Perl Library
-       Pragmatic Modules
-       Standard Modules
-       Diagnostic Modules
+
 
 =head1 NOTES
 
@@ -274,6 +270,8 @@ Perl6::Bible provides a class method to get the raw text of a document:
 * Sam Vilain <samv@cpan.org>
 
 * Audrey Tang <autrijus@cpan.org>
+
+* Herbert Breunung <lichtkind@cpan.org>
 
 =head1 COPYRIGHT
 

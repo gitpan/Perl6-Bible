@@ -1,3 +1,11 @@
+version: 0.30
+date: Sat Dec 22 15:35:00 IST 2007
+changes:
+- removed  A20 S29
+- updated: A01 A02 A03 A04 A05 A06                  A12
+               E02 E03 E04 E05 E06 E07 
+           S01 S02 S03 S04 S05 S06      S09 S10 S11 S12 S13
+---
 version: 0.29
 date: Tue Feb 28 17:18:59 IST 2006
 changes:

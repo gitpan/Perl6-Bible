@@ -71,7 +71,7 @@ CONTENTS
                 S17* Threads
                      Compiling
                      The Command-Line Interface
-      A20*           The Perl Debugger
+                     The Perl Debugger
                      Internals and Externals
                      CPAN
                      Security
@@ -80,11 +80,7 @@ CONTENTS
                 S26* Perl Documentation
                 S27* Perl Culture
                 S28* Special Names
-                S29* Functions
-                     The Standard Perl Library
-                     Pragmatic Modules
-                     Standard Modules
-                     Diagnostic Modules
+
 
 METHODS
     Perl6::Bible provides a class method to get the raw text of a document:
@@ -93,8 +89,12 @@ METHODS
 
 SCRIBES
     * Brian Ingerson <ingy@cpan.org>
-
+    
     * Sam Vilain <samv@cpan.org>
+    
+    * Audrey Tang <autrijus@cpan.org>
+    
+    * Herbert Breunung <lichtkind@cpan.org>
 
 COPYRIGHT
     This Copyright applies only to the "Perl6::Bible" Perl software
@@ -103,7 +103,7 @@ COPYRIGHT
     A couple of paragraphs from _Perl 6 Essentials_ were used for the
     overview.
 
-    Copyright (c) 2005. Brian Ingerson. All rights reserved.
+    Copyright (c) 2007. Brian Ingerson. All rights reserved.
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
