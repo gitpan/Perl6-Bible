@@ -2,7 +2,7 @@ package Perl6::Bible;
 use 5.000;
 use File::Spec;
 
-$Perl6::Bible::VERSION = '0.30';
+$Perl6::Bible::VERSION = '0.32';
 
 sub new {
     my $class = shift;
@@ -156,8 +156,8 @@ Perl6::Bible - Perl 6 Design Documentations
 
 =head1 VERSION
 
-This document describes version 0.31 of Perl6::Bible, released
-December 25, 2007.
+This document describes version 0.32 of Perl6::Bible, released
+December 23, 2007.
 
 =head1 SYNOPSIS
 
@@ -195,10 +195,11 @@ the Perl 6 Design Team.
        Tied Variables
        Unicode
        Interprocess Communication
+  S16* IPC / IO / Signals  
   S17* Threads
        Compiling
        The Command-Line Interface
-       The Perl Debugger                 (A20*)
+       The Perl Debugger
        Internals and Externals
   S22* CPAN
        Security
@@ -207,6 +208,7 @@ the Perl 6 Design Team.
   S26* Perl Documentation
   S27* Perl Culture
   S28* Special Names
+  S29* Functions
 
 
 =head1 NOTES
@@ -279,7 +281,11 @@ This Copyright applies only to the C<Perl6::Bible> Perl software
 distribution, not the documents bundled within.
 
 A couple of paragraphs from _Perl 6 Essentials_ were used for the
-overview.
+overview. Most docs are from the official Perl development site. 
+
+http://dev.perl.org/perl6/
+
+All draft Synopses were taken out of the Pugs SVN repository.
 
 Copyright (c) 2005. Brian Ingerson. All rights reserved.
 

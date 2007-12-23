@@ -63,11 +63,12 @@ CONTENTS
                 S09  Data Structures
                 S10  Packages
                 S11  Modules
-                S12  Objects
+      A12       S12  Objects
                 S13  Overloading
                      Tied Variables
                      Unicode
                      Interprocess Communication
+                S16* IPC / IO / Signals
                 S17* Threads
                      Compiling
                      The Command-Line Interface
@@ -97,16 +98,19 @@ SCRIBES
     * Herbert Breunung <lichtkind@cpan.org>
 
 COPYRIGHT
-    This Copyright applies only to the "Perl6::Bible" Perl software
+    This Copyright applies only to the C<Perl6::Bible> Perl software
     distribution, not the documents bundled within.
 
     A couple of paragraphs from _Perl 6 Essentials_ were used for the
-    overview.
+    overview. Most docs are from the official Perl development site. 
 
-    Copyright (c) 2007. Brian Ingerson. All rights reserved.
+    http://dev.perl.org/perl6/
+
+    All draft Synopses were taken out of the Pugs SVN repository.
+
+    Copyright (c) 2005. Brian Ingerson. All rights reserved.
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
 
     See http://www.perl.com/perl/misc/Artistic.html
-
