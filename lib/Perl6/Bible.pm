@@ -2,7 +2,7 @@ package Perl6::Bible;
 use 5.000;
 use File::Spec;
 
-$Perl6::Bible::VERSION = '0.33';
+$Perl6::Bible::VERSION = '0.34';
 
 sub new {
     my $class = shift;
@@ -24,10 +24,10 @@ __DATA__
 
 Perl6::Bible - Perl 6 Design Documentations [STALLED]
 
-SYNOPSIS
-        please use Perl6::Doc instead
+=head1 SYNOPSIS
+        please use L<Perl6::Doc> instead
 
-COPYRIGHT
+=head1 COPYRIGHT
     This Copyright applies only to the C<Perl6::Bible> Perl software
     distribution, not the documents bundled within.
 

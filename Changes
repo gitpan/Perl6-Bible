@@ -1,3 +1,8 @@
+version: 0.33
+date: Sun Dec 29
+changes:
+- repaired some POD quirks
+---
 version: 0.32
 date: Sun Dec 25
 changes:
