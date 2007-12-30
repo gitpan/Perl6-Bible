@@ -2,7 +2,7 @@ package Perl6::Bible;
 use 5.000;
 use File::Spec;
 
-$Perl6::Bible::VERSION = '0.34';
+$Perl6::Bible::VERSION = '0.35';
 
 sub new {
     my $class = shift;
@@ -25,24 +25,26 @@ __DATA__
 Perl6::Bible - Perl 6 Design Documentations [STALLED]
 
 =head1 SYNOPSIS
-        please use L<Perl6::Doc> instead
+
+please use L<Perl6::Doc> instead
 
 =head1 COPYRIGHT
-    This Copyright applies only to the C<Perl6::Bible> Perl software
-    distribution, not the documents bundled within.
 
-    A couple of paragraphs from _Perl 6 Essentials_ were used for the
-    overview. Most docs are from the official Perl development site. 
+This Copyright applies only to the C<Perl6::Bible> Perl software
+distribution, not the documents bundled within.
 
-    http://dev.perl.org/perl6/
+A couple of paragraphs from _Perl 6 Essentials_ were used for the
+overview. Most docs are from the official Perl development site. 
 
-    All draft Synopses were taken out of the Pugs SVN repository.
+http://dev.perl.org/perl6/
 
-    Copyright (c) 2007. Ingy Döt Net. All rights reserved.
+All draft Synopses were taken out of the Pugs SVN repository.
 
-    This program is free software; you can redistribute it and/or modify it
-    under the same terms as Perl itself.
+Copyright (c) 2007. Ingy Döt Net. All rights reserved.
 
-    See http://www.perl.com/perl/misc/Artistic.html
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
