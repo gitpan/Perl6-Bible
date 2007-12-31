@@ -14,3 +14,4 @@ MANIFEST			This list of files
 META.yml
 p6bible
 README
+t/compile.t

@@ -2,7 +2,7 @@ package Perl6::Bible;
 use 5.000;
 use File::Spec;
 
-$Perl6::Bible::VERSION = '0.35';
+$Perl6::Bible::VERSION = '0.36';
 
 sub new {
     my $class = shift;

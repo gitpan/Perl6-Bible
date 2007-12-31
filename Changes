@@ -1,3 +1,8 @@
+version: 0.4
+date: Sun Dec 31
+changes:
+- readded compile tests
+---
 version: 0.33
 date: Sun Dec 29
 changes:
