@@ -8,13 +8,6 @@ COPYRIGHT
     This Copyright applies only to the C<Perl6::Bible> Perl software
     distribution, not the documents bundled within.
 
-    A couple of paragraphs from _Perl 6 Essentials_ were used for the
-    overview. Most docs are from the official Perl development site. 
-
-    http://dev.perl.org/perl6/
-
-    All draft Synopses were taken out of the Pugs SVN repository.
-
     Copyright (c) 2007. Ingy Döt Net. All rights reserved.
 
     This program is free software; you can redistribute it and/or modify it

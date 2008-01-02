@@ -2,7 +2,7 @@ package Perl6::Bible;
 use 5.000;
 use File::Spec;
 
-$Perl6::Bible::VERSION = '0.36';
+$Perl6::Bible::VERSION = '0.37';
 
 sub new {
     my $class = shift;
@@ -12,6 +12,7 @@ sub new {
 sub process {
     my $self = shift;
     print <<_;
+
 This was the Perl 6 Canon up to December 2007.
 Please install Perl6::Doc to have even more Perl 6 Documentation.
 _
@@ -32,13 +33,6 @@ please use L<Perl6::Doc> instead
 
 This Copyright applies only to the C<Perl6::Bible> Perl software
 distribution, not the documents bundled within.
-
-A couple of paragraphs from _Perl 6 Essentials_ were used for the
-overview. Most docs are from the official Perl development site. 
-
-http://dev.perl.org/perl6/
-
-All draft Synopses were taken out of the Pugs SVN repository.
 
 Copyright (c) 2007. Ingy Döt Net. All rights reserved.
 
